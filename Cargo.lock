@@ -654,24 +654,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "lqs"
-version = "0.1.0"
-dependencies = [
- "async-std",
- "lqs_derive",
- "sqlx",
-]
-
-[[package]]
-name = "lqs_derive"
-version = "0.1.0"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "md-5"
 version = "0.10.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1510,3 +1492,21 @@ name = "windows_x86_64_msvc"
 version = "0.42.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "447660ad36a13288b1db4d4248e857b510e8c3a225c822ba4fb748c0aafecffd"
+
+[[package]]
+name = "xlqs"
+version = "0.1.0"
+dependencies = [
+ "async-std",
+ "sqlx",
+ "xlqs_derive",
+]
+
+[[package]]
+name = "xlqs_derive"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]

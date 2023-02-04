@@ -21,7 +21,7 @@ pub enum Status {
 ```rust
 mod entity;
 
-use lqs::{ConnectionPool, Error};
+use xlqs::{ConnectionPool, Error};
 use entity::{Task, Status::*};
 
 #[main]
@@ -30,27 +30,43 @@ async fn main() -> Result<(), Error> {
         "mysql://user:password@localhost:5432/sample"
     ).await?;
 
-    pool.INSERT(
-        Task::VALUES()
+    Task::INSERT(&pool)
+        .VALUES(|t| t
             .subject("task1")
             .status(Ready)
-    ).await?;
-
-    let task = pool.SELECT_UNIQUE(
-        Task::WHERE()
+        )
+        .await?;
+    
+    let task = Task::ONLY(&pool)
+        .WHERE(|t| t
             .subject_like("$task")
             .status_eq(Ready)
-    ).await?;
+        )
+        .await?;
 
-    pool.UPDATE(
-        Task::SET().status(Ready)
-            .WHERE().subject_eq("task1")
-    ).await?;
+    let first_task = Task::FIRST(&pool)
+        .WHERE(|t| t
+            .subject_like("$task")
+            .status_eq(Ready)
+        )
+        .await?;
 
-    pool.DELETE(
-        Task::WHERE()
+    let ready_tasks = Task::ALL(&pool)
+        .WHERE(|t| t.status_eq(Ready))
+        .ORDER_DESC(|t| t.id)
+        .LIMIT(100)
+        .await?;
+
+    Task::UPDATE(&pool)
+        .SET(|t| t.status(Ready))
+        .WHERE(|t| t.subject_eq("task1"))
+        .await?;
+
+    Task::DELETE(&pool)
+        .WHERE(|t| t
             .subject_like("$task")
             .status_eq(Completed)
-    ).await?;
+        )
+        .await?;
 }
 ```
