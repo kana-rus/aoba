@@ -1,8 +1,15 @@
+[workspace]
+members = [
+    ".",
+    "./derive",
+]
+
 [package]
-name = "musql"
+name = "lqs"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
+async-std = "1"
+lqs_derive = { version = "0.1.0", path = "./derive" }
+sqlx = { version = "0.6", default-features = false, features = ["runtime-async-std-native-tls", "postgres"] }
