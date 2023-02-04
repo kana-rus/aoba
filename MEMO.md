@@ -1,26 +1,27 @@
 ```rust
-use musql::{Entity, Text, DateTime};
+use lqs::{Entity, Text, DateTime};
 
 #[derive(Entity)]
-// #[table("tasks")]           <-- default behavior
+// #[table("tasks")]             <-- default behavior
 pub struct Task {
-    #[primary_key] id: u64,
-    subject:           String,
-    status:            Status,
+    #[primary_key]   pub id:      u64,
+    #[db_type(Text)] pub subject: String,
+    pub status:                   Status,
 }
 
 #[derive(Entity)]
 pub enum Status {
-    // #[value("ready")]       <-- default behavior
+    // #[db_value("ready")]       <-- default behavior
     Ready,
-    // #[value("completed")]   <-- default behavior
+    // #[db_value("completed")]   <-- default behavior
     Completed,
 }
+```
 
----
+```rust
 mod entity;
 
-use musql::{ConnectionPool, Error};
+use lqs::{ConnectionPool, Error};
 use entity::{Task, Status::*};
 
 #[main]
