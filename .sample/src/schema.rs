@@ -1,17 +1,13 @@
 use xlqs::{entity, db_types::{TIMESTAMP, SERIAL, CHAR, TEXT}};
 
 entity! {
-    #[with(time)]
+    #[with(id, time)]
     User {
-        // #[PRIMARY_KEY]
-        // id:       SERIAL,
         name:     CHAR(20),
         password: CHAR(20),
     },
-    #[with(time)]
+    #[with(id, time)]
     Task {
-        // #[PRIMARY_KEY]
-        // id:         SERIAL,
         user_id *-> User.id,
         title:      CHAR(20),
         body:       TEXT,
@@ -21,23 +17,15 @@ entity! {
 // ==========
 // expanded:
 
-struct UserEntity {
+pub(crate) struct User {
     id: Result<u32>,
     name: Result<String>,
     password: Result<String>,
     created_at: Result<DateTime>,
     updated_at: Result<DateTime>,
 }
-struct User {
-    id: u32,
-    name: String,
-    password: String,
-}
-impl UserEntity {
 
-}
-
-struct TaskEntity {
+pub(crate) struct Task {
     id: Result<u32>,
     user_id: Result<u32>,
     title: Result<String>,
@@ -45,49 +33,10 @@ struct TaskEntity {
     created_at: Result<DateTime>,
     updated_at: Result<DateTime>,
 }
-struct Task {
-    id: u32,
-    user_id: u32,
-    title: String,
-    body: String,
-}
-
-impl Entity {
-    pub fn as_user(self) -> Result<User> {
-        match self {
-            Self::User {
-                id,
-                name,
-                password,
-            } => Ok(User {
-                id: id.ok_or_else(|| ..)?,
-                name: name.ok_or_else(|| ..)?,
-                password: password.ok_or_else(|| ..)?,
-            }),
-            _ => unreachable!()
-        }
-    }
-    pub fn as_task(self) -> Result<Task> {
-        match self {
-            Self::Task {
-                id,
-                user_id,
-                title,
-                body,
-            } => Ok(Task {
-                id: id.ok_or_else(|| ..)?,
-                user_id: user_id.ok_or_else(|| ..)?,
-                title: title.ok_or_else(|| ..)?,
-                body: body.ok_or_else(|| ..)?,
-            }),
-            _ => unreachable!()
-        }
-    }
-}
 
 // ==========
 /*
-    $ xlqs migrate
+    $ xlqs migrate (= `xlqs generate && xlqs migrate`)
       --url mysql://user:password@localhost:5432/sample
       [ --schema src/schema.rs (: default behavior) ]
       [ --out ./migration/sql  (: default behavior) ]

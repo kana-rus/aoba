@@ -5,11 +5,11 @@ members = [
 ]
 
 [package]
-name = "xlqs"
+name = "aoba"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 async-std = "1"
-xlqs_derive = { version = "0.1.0", path = "./derive" }
+aoba_derive = { version = "0.1.0", path = "./derive" }
 sqlx = { version = "0.6", default-features = false, features = ["runtime-async-std-native-tls", "postgres"] }
