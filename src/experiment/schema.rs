@@ -12,8 +12,7 @@ use super::aoba;
 
 pub mod users {
     use crate::experiment::aoba;
-
-    use super::{User, __private::{UserCreater, UserSelecter, UserUpdater, UserDeleter}};
+    use super::{User, __user_private::{UserCreater, UserSelecter, UserUpdater, UserDeleter}};
 
     #[allow(non_snake_case)]
     #[allow(unused)]
@@ -54,8 +53,7 @@ pub struct User<
     pub password: PasswordStr,
 }
 
-
-pub mod __private {
+pub mod __user_private {
     use crate::experiment::aoba;
     use super::User;
 
