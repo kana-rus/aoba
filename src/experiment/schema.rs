@@ -249,7 +249,7 @@ pub mod __private {
     impl UserUpdater {
         #[allow(non_snake_case)]
         #[allow(unused)]
-        pub fn VALUES<F: Fn(UpdateUser) -> UpdateUser>(mut self, values_setter: F) -> Self {
+        pub fn SET<F: Fn(UpdateUser) -> UpdateUser>(mut self, values_setter: F) -> Self {
             self.set_values = values_setter(self.set_values);
             self
         }

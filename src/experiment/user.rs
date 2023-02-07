@@ -15,7 +15,7 @@ fn _user() {
     });
 
     let _ = User::UPDATE()
-        .VALUES(|user| user
+        .SET(|user| user
             .name("new user")
             .password("new password")
         )
