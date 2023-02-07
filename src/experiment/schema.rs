@@ -10,20 +10,17 @@ schema! {
 
 use super::aoba;
 
-use self::__private::{UserDeleter, UserUpdater, UserCreater, UserSelecter};
+pub mod users {
+    use crate::experiment::aoba;
 
-#[allow(unused)]
-pub struct User {
-    id: Option<u32>,
-    name: Option<String>,
-    password: Option<String>,
-} impl User {
+    use super::{User, __private::{UserCreater, UserSelecter, UserUpdater, UserDeleter}};
+
     #[allow(non_snake_case)]
     #[allow(unused)]
     pub fn CREATE<
         NameStr: aoba::AsStr,
         PasswordStr: aoba::AsStr,
-    >(user: NewUser<NameStr, PasswordStr>) -> UserCreater<NameStr, PasswordStr> {
+    >(user: User<NameStr, PasswordStr>) -> UserCreater<NameStr, PasswordStr> {
         UserCreater::new(user)
     }
     #[allow(non_snake_case)]
@@ -49,7 +46,7 @@ pub struct User {
 }
 
 #[allow(unused)]
-pub struct NewUser<
+pub struct User<
     NameStr: aoba::AsStr,
     PasswordStr: aoba::AsStr,
 > {
@@ -60,7 +57,7 @@ pub struct NewUser<
 
 pub mod __private {
     use crate::experiment::aoba;
-    use super::NewUser;
+    use super::User;
 
     #[allow(unused)]
     pub struct UpdateUser {
@@ -171,12 +168,12 @@ pub mod __private {
     pub struct UserCreater<
         NameStr: aoba::AsStr,
         PasswordStr: aoba::AsStr,
-    >(NewUser<NameStr, PasswordStr>);
+    >(User<NameStr, PasswordStr>);
     impl<
         NameStr: aoba::AsStr,
         PasswordStr: aoba::AsStr,
     > UserCreater<NameStr, PasswordStr> {
-        pub(super) fn new(create_user: NewUser<NameStr, PasswordStr>) -> Self {
+        pub(super) fn new(create_user: User<NameStr, PasswordStr>) -> Self {
             Self(create_user)
         }
 

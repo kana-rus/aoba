@@ -1,7 +1,7 @@
-use super::schema::{User, NewUser};
+use super::schema::{users, User};
 
 fn _user() {
-    let _ = User::ALL()
+    users::ALL()
         .LIMIT(100)
         .ORDER_ASC(|user| user.name)
         .WHERE(|user| user
@@ -9,12 +9,12 @@ fn _user() {
             .id_between(1, 1000)
         );
 
-    let _ = User::CREATE(NewUser {
+    users::CREATE(User {
         name: "user1",
         password: "password",
     });
 
-    let _ = User::UPDATE()
+    users::UPDATE()
         .SET(|user| user
             .name("new user")
             .password("new password")
