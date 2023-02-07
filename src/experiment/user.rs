@@ -1,4 +1,4 @@
-use super::schema::{User, CreateUser};
+use super::schema::{User, NewUser};
 
 fn _user() {
     let _ = User::ALL()
@@ -9,7 +9,7 @@ fn _user() {
             .id_between(1, 1000)
         );
 
-    let _ = User::CREATE(CreateUser {
+    let _ = User::CREATE(NewUser {
         name: "user1",
         password: "password",
     });

@@ -23,7 +23,7 @@ pub struct User {
     pub fn CREATE<
         NameStr: aoba::AsStr,
         PasswordStr: aoba::AsStr,
-    >(user: CreateUser<NameStr, PasswordStr>) -> UserCreater<NameStr, PasswordStr> {
+    >(user: NewUser<NameStr, PasswordStr>) -> UserCreater<NameStr, PasswordStr> {
         UserCreater::new(user)
     }
     #[allow(non_snake_case)]
@@ -49,7 +49,7 @@ pub struct User {
 }
 
 #[allow(unused)]
-pub struct CreateUser<
+pub struct NewUser<
     NameStr: aoba::AsStr,
     PasswordStr: aoba::AsStr,
 > {
@@ -60,7 +60,7 @@ pub struct CreateUser<
 
 pub mod __private {
     use crate::experiment::aoba;
-    use super::CreateUser;
+    use super::NewUser;
 
     #[allow(unused)]
     pub struct UpdateUser {
@@ -171,12 +171,12 @@ pub mod __private {
     pub struct UserCreater<
         NameStr: aoba::AsStr,
         PasswordStr: aoba::AsStr,
-    >(CreateUser<NameStr, PasswordStr>);
+    >(NewUser<NameStr, PasswordStr>);
     impl<
         NameStr: aoba::AsStr,
         PasswordStr: aoba::AsStr,
     > UserCreater<NameStr, PasswordStr> {
-        pub(super) fn new(create_user: CreateUser<NameStr, PasswordStr>) -> Self {
+        pub(super) fn new(create_user: NewUser<NameStr, PasswordStr>) -> Self {
             Self(create_user)
         }
 
