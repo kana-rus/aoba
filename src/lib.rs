@@ -1,5 +1,6 @@
 mod connection_pool;
 mod entity;
+mod experiment;
 
 // use sqlx::{Pool, Database};
 // 
