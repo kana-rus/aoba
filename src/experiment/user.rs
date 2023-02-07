@@ -1,11 +1,14 @@
-use super::schema::{users, User};
+use super::schema::{
+    table::users,
+    entity::User,
+};
 
-fn _user() {
+fn _user_() {
     users::ALL()
         .LIMIT(100)
-        .ORDER_BY(|user| user.name)
-        .ORDER_BY_REVERSED(|user| user.password)
-        .WHERE(|user| user
+        .ORDER_BY(|u| u.name)
+        .ORDER_BY_REVERSED(|u| u.password)
+        .WHERE(|u| u
             .name_like("%user")
             .id_between(1, 1000)
         );
@@ -22,11 +25,11 @@ fn _user() {
     });
 
     users::UPDATE()
-        .SET(|user| user
+        .SET(|u| u
             .name("new user")
             .password("new password")
         )
-        .WHERE(|user| user
+        .WHERE(|u| u
             .id_eq(314)
         );
 }

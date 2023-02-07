@@ -8,42 +8,48 @@ schema! {
 }
 */
 
-use super::aoba;
+pub mod table {
+    #![allow(unused, non_snake_case, non_camel_case_types)]
 
-use self::__private::{UserCreater, UsersSelecter, UserUpdater, UserDeleter, UserSelecter};
+    use crate::experiment::aoba;
+    use super::{__private::*, entity::User};
 
-#[allow(unused, non_camel_case_types)]
-pub struct users;
-#[allow(unused, non_snake_case)]
-impl users {
-    pub fn CREATE<NameStr: Into<aoba::string>, PasswordStr: Into<aoba::string>>(user: User<NameStr, PasswordStr>) -> UserCreater<NameStr, PasswordStr> {
-        UserCreater::new(user)
-    }
-    pub fn FIRST() -> UserSelecter {
-        UserSelecter::new()
-    }
-    pub fn ALL() -> UsersSelecter {
-        UsersSelecter::new()
-    }
-    pub fn UPDATE() -> UserUpdater {
-        UserUpdater::new()
-    }
-    pub fn DELETE() -> UserDeleter {
-        UserDeleter::new()
+    pub struct users;
+    impl users {
+        pub fn CREATE<NameStr: Into<aoba::string>, PasswordStr: Into<aoba::string>>(user: User<NameStr, PasswordStr>) -> UserCreater<NameStr, PasswordStr> {
+            UserCreater::new(user)
+        }
+        pub fn FIRST() -> UserSelecter {
+            UserSelecter::new()
+        }
+        pub fn ALL() -> UsersSelecter {
+            UsersSelecter::new()
+        }
+        pub fn UPDATE() -> UserUpdater {
+            UserUpdater::new()
+        }
+        pub fn DELETE() -> UserDeleter {
+            UserDeleter::new()
+        }
     }
 }
 
-#[allow(unused)]
-pub struct User<NameStr: Into<aoba::string>, PasswordStr: Into<aoba::string>> {
-    pub name: NameStr,
-    pub password: PasswordStr,
+pub mod entity {
+    #![allow(unused, non_snake_case, non_camel_case_types)]
+    use crate::experiment::aoba;
+
+    pub struct User<NameStr: Into<aoba::string>, PasswordStr: Into<aoba::string>> {
+        pub name: NameStr,
+        pub password: PasswordStr,
+    }
 }
 
 pub mod __private {
     #![allow(unused, non_snake_case, non_camel_case_types)]
 
     use crate::experiment::aoba;
-    use super::User;
+
+    use super::entity::User;
 
     pub struct UpdateUser {
         id: Option<u32>,
@@ -133,20 +139,6 @@ pub mod __private {
             select
         }
     }
-    // impl SelectUserColumns {
-    //     pub fn id(mut self) -> Self {
-    //         self.id = true;
-    //         self
-    //     }
-    //     pub fn name(mut self) -> Self {
-    //         self.name = true;
-    //         self
-    //     }
-    //     pub fn password(mut self) -> Self {
-    //         self.password = true;
-    //         self
-    //     }
-    // }
 
     pub struct UserCondition(String);
     impl UserCondition {
