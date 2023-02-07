@@ -303,5 +303,40 @@ pub mod __private {
             <Self as sqlx::FromRow<'r, R>>::from_row(row)
         }
     }
-    // impl UserCreater<>
+
+    impl<'q, DB: sqlx::Database> sqlx::Execute<'q, DB> for UserSelecter {
+        fn sql(&self) -> &'q str {
+            todo!()
+        }
+        fn statement(&self) -> Option<&<DB as sqlx::database::HasStatement<'q>>::Statement> {
+            None
+        }
+        fn take_arguments(&mut self) -> Option<<DB as sqlx::database::HasArguments<'q>>::Arguments> {
+            None
+        }
+        fn persistent(&self) -> bool {
+            true
+        }
+    }
+    // impl aoba::Query for UserSelecter {
+    //     type DB = sqlx::Postgres;
+    //     fn exec<'e, E: sqlx::Executor<'e>>(
+    //         self,
+    //         executor: E,
+    //     ) -> futures_core::stream::BoxStream<'e, sqlx::Result<<Self::DB as sqlx::Database>::QueryResult>> {
+    //         // Pin<Box<dyn Stream<Item = Result<<<E as Executor<'e>>::Database as sqlx::Database>::QueryResult, sqlx::Error>> + Send>>
+    //         executor.execute_many(self)
+    //     }
+    //     fn save<'e, 'r, As: sqlx::FromRow<'r, R>, R: sqlx::Row, E: sqlx::Executor<'e>>(
+    //         self,
+    //         executor: E,
+    //     ) -> futures_core::stream::BoxStream<'e, sqlx::Result<As>> {
+    //         let row = executor.fetch_one(self);
+    //     }
+    // }
+    // impl UserSelecter {
+    //     pub fn exec<'e, E: sqlx::Executor<'e>>(self, executor: E) {
+    //         executor.
+    //     }
+    // }
 }

@@ -19,6 +19,7 @@ version = "0.1.0"
 dependencies = [
  "aoba_derive",
  "async-std",
+ "futures-core",
  "sqlx",
 ]
 
