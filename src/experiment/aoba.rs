@@ -1,45 +1,55 @@
-use futures_core::stream::BoxStream;
-use sqlx::{Database, Executor, FromRow, Row};
+use sqlx::{Executor, FromRow, Row, Error};
 
 pub enum Order {
     Asc,
     Desc,
 }
 
+// #[allow(non_camel_case_types)]
+// pub struct string(
+//     std::borrow::Cow<'static, str>
+// ); impl string {
+//     pub fn as_str(&self) -> &str {
+//         &&self.0
+//     }
+// }
+// impl Into<string> for String {
+//     fn into(self) -> string {
+//         string(std::borrow::Cow::Owned(self))
+//     }
+// }
+// impl Into<string> for &String {
+//     fn into(self) -> string {
+//         string(std::borrow::Cow::Owned(self.to_owned()))
+//     }
+// }
+// impl Into<string> for &'static str {
+//     fn into(self) -> string {
+//         string(std::borrow::Cow::Borrowed(self))
+//     }
+// }
 #[allow(non_camel_case_types)]
-pub struct string(
-    std::borrow::Cow<'static, str>
-); impl string {
-    pub fn as_str(&self) -> &str {
-        &&self.0
-    }
+pub trait string {
+    fn to_string(self) -> String;
+    fn as_str(&self) -> &str;
 }
-impl Into<string> for String {
-    fn into(self) -> string {
-        string(std::borrow::Cow::Owned(self))
-    }
+impl string for String {
+    fn to_string(self) -> String {self}
+    fn as_str(&self) -> &str {&self}
 }
-impl Into<string> for &String {
-    fn into(self) -> string {
-        string(std::borrow::Cow::Owned(self.to_owned()))
-    }
-}
-impl Into<string> for &'static str {
-    fn into(self) -> string {
-        string(std::borrow::Cow::Borrowed(self))
-    }
+impl string for &str {
+    fn to_string(self) -> String {self.to_owned()}
+    fn as_str(&self) -> &str {self}
 }
 
-pub trait Query: Sized {
-    type DB: Database;
+pub trait Exec<'r, R: Row> {
+    type Return: FromRow<'r, R>;
+    async fn exec<'e, E: Executor<'e>>(self, executer: E) -> Result<<Self as Exec<'r, R>>::Return, Error>;
+}
 
-    fn exec<'e, E: Executor<'e>>(
-        self,
-        executor: E,
-    ) -> BoxStream<'e, sqlx::Result<<Self::DB as Database>::QueryResult>>;
-
-    fn save<'e, 'r, As: FromRow<'r, R>, R: Row, E: Executor<'e>>(
-        self,
-        executor: E,
-    ) -> BoxStream<'e, sqlx::Result<As>>;
+pub struct QuerySucceed;
+impl<'r, R: Row> FromRow<'r, R> for QuerySucceed {
+    #[inline] fn from_row(_: &'r R) -> Result<Self, Error> {
+        Ok(QuerySucceed)
+    }
 }

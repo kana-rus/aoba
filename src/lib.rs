@@ -1,3 +1,6 @@
+#![allow(incomplete_features)]
+#![feature(async_fn_in_trait)]
+
 mod connection_pool;
 mod entity;
 mod experiment;

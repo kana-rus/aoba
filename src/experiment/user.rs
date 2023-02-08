@@ -20,8 +20,8 @@ fn _user_() {
         ]);
 
     users::CREATE(User {
-        name: "user1",
-        password: "password",
+        name: String::from("user1"),
+        password: String::from("password"),
     });
 
     users::UPDATE()

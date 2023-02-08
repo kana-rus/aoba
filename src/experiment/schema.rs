@@ -16,7 +16,7 @@ pub mod table {
 
     pub struct users;
     impl users {
-        pub fn CREATE<NameStr: Into<aoba::string>, PasswordStr: Into<aoba::string>>(user: User<NameStr, PasswordStr>) -> UserCreater<NameStr, PasswordStr> {
+        pub fn CREATE(user: User) -> UserCreater {
             UserCreater::new(user)
         }
         pub fn FIRST() -> UserSelecter {
@@ -38,9 +38,9 @@ pub mod entity {
     #![allow(unused, non_snake_case, non_camel_case_types)]
     use crate::experiment::aoba;
 
-    pub struct User<NameStr: Into<aoba::string>, PasswordStr: Into<aoba::string>> {
-        pub name: NameStr,
-        pub password: PasswordStr,
+    pub struct User {
+        pub name: String,
+        pub password: String,
     }
 }
 
@@ -48,13 +48,13 @@ mod row {
     #![allow(unused, non_snake_case, non_camel_case_types)]
     use crate::experiment::aoba;
 
-    pub struct User_id_name_password {pub id: u32, pub name: aoba::string, pub password: aoba::string}
-    pub struct User_id_name {pub id: u32, pub name: aoba::string}
-    pub struct User_id_password {pub id: u32, pub password: aoba::string}
-    pub struct User_name_password {pub name: aoba::string, pub password: aoba::string}
+    pub struct User_id_name_password {pub id: u32, pub name: String, pub password: String}
+    pub struct User_id_name {pub id: u32, pub name: String}
+    pub struct User_id_password {pub id: u32, pub password: String}
+    pub struct User_name_password {pub name: String, pub password: String}
     pub struct User_id {pub id: u32}
-    pub struct User_name {pub name: aoba::string}
-    pub struct User_password {pub password: aoba::string}
+    pub struct User_name {pub name: String}
+    pub struct User_password {pub password: String}
 }
 
 pub mod __private {
@@ -162,41 +162,66 @@ pub mod __private {
             self.and(format!("id BETWEEN {left} AND {right}"))
         }
 
-        #[inline] pub fn name_eq<Str: Into<aoba::string>>(mut self, another: Str) -> Self {
-            self.and(format!("name = '{}'", another.into().as_str()))
+        #[inline] pub fn name_eq<Str: aoba::string>(mut self, another: Str) -> Self {
+            self.and(format!("name = '{}'", another.as_str()))
         }
-        #[inline] pub fn name_like<Str: Into<aoba::string>>(mut self, regex: Str) -> Self {
-            self.and(format!("name LIKE '{}'", regex.into().as_str()))
+        #[inline] pub fn name_like<Str: aoba::string>(mut self, regex: Str) -> Self {
+            self.and(format!("name LIKE '{}'", regex.as_str()))
         }
 
-        #[inline] pub fn password_eq<Str: Into<aoba::string>>(mut self, another: Str) -> Self {
-            self.and(format!("password = '{}'", another.into().as_str()))
+        #[inline] pub fn password_eq<Str: aoba::string>(mut self, another: Str) -> Self {
+            self.and(format!("password = '{}'", another.as_str()))
         }
-        #[inline] pub fn password_like<Str: Into<aoba::string>>(mut self, regex: Str) -> Self {
-            self.and(format!("password LIKE '{}'", regex.into().as_str()))
+        #[inline] pub fn password_like<Str: aoba::string>(mut self, regex: Str) -> Self {
+            self.and(format!("password LIKE '{}'", regex.as_str()))
         }
     }
 
-    pub struct UserCreater<NameStr: Into<aoba::string>, PasswordStr: Into<aoba::string>>(
-        User<NameStr, PasswordStr>
-    ); impl<NameStr: Into<aoba::string>, PasswordStr: Into<aoba::string>> UserCreater<NameStr, PasswordStr> {
-        #[inline] pub(super) fn new(create_user: User<NameStr, PasswordStr>) -> Self {
+    pub struct UserCreater(
+        User
+    );
+    impl UserCreater {
+        #[inline] pub(super) fn new(create_user: User) -> Self {
             Self(create_user)
         }
 
         #[inline] pub fn RETURNING<F: Fn(UserColumns) -> U, U: Into<SelectUserColumns>>(
             self,
             select_columns: F,
-        ) -> UserCreaterReturning<NameStr, PasswordStr> {
+        ) -> UserCreaterReturning {
             let columns = select_columns(USER_COLUMNS).into();
             UserCreaterReturning { entity: self.0, columns }
         }
     }
-    pub struct UserCreaterReturning<NameStr: Into<aoba::string>, PasswordStr: Into<aoba::string>> {
-        entity:  User<NameStr, PasswordStr>,
-        columns: SelectUserColumns,
-    } impl<NameStr: Into<aoba::string>, PasswordStr: Into<aoba::string>> UserCreaterReturning<NameStr, PasswordStr> {
+    impl<'q, DB: sqlx::Database> sqlx::Execute<'q, DB> for UserCreater {
+        fn statement(&self) -> Option<&<DB as sqlx::database::HasStatement<'q>>::Statement> {None}
+        fn take_arguments(&mut self) -> Option<<DB as sqlx::database::HasArguments<'q>>::Arguments> {None}
+        fn persistent(&self) -> bool {true}
+        fn sql(&self) -> &'q str {
+            todo!()
+        }
+    }
+    impl<'r, R: sqlx::Row> aoba::Exec<'r, R> for UserCreater {
+        type Return = aoba::QuerySucceed;
+        #[inline] async fn exec<'e, E: sqlx::Executor<'e>>(self, executer: E) -> Result<<Self as aoba::Exec<'r, R>>::Return, sqlx::Error> {
+            executer.execute(self).await.map(|_| aoba::QuerySucceed)
+        }
+    }
 
+    pub struct UserCreaterReturning {
+        entity:  User,
+        columns: SelectUserColumns,
+    }
+    impl<'q, DB: sqlx::Database> sqlx::Execute<'q, DB> for UserCreaterReturning {
+        fn statement(&self) -> Option<&<DB as sqlx::database::HasStatement<'q>>::Statement> {None}
+        fn take_arguments(&mut self) -> Option<<DB as sqlx::database::HasArguments<'q>>::Arguments> {None}
+        fn persistent(&self) -> bool {true}
+        fn sql(&self) -> &'q str {
+            todo!()
+        }
+    }
+    impl<'r, R: sqlx::Row> aoba::Exec<'r, R> for UserCreaterReturning {
+        type Return = ;
     }
 
     pub struct UserUpdater {
@@ -224,18 +249,18 @@ pub mod __private {
     }
     pub struct UpdateUser {
         id: Option<u32>,
-        name: Option<aoba::string>,
-        password: Option<aoba::string>,
+        name: Option<String>,
+        password: Option<String>,
     } impl UpdateUser {
         #[inline] pub(super) fn new() -> Self {
             Self { id: None, name: None, password: None }
         }
-        #[inline] pub fn name<Str: Into<aoba::string>>(mut self, name: Str) -> Self {
-            self.name = Some(name.into());
+        #[inline] pub fn name<Str: aoba::string>(mut self, name: Str) -> Self {
+            self.name = Some(name.to_string());
             self
         }
-        #[inline] pub fn password<Str: Into<aoba::string>>(mut self, password: Str) -> Self {
-            self.password = Some(password.into());
+        #[inline] pub fn password<Str: aoba::string>(mut self, password: Str) -> Self {
+            self.password = Some(password.to_string());
             self
         }
     }
@@ -312,8 +337,7 @@ pub mod __private {
         pub(super) fn new() -> Self {
             Self { columns: SelectUserColumns::new(), condition: UserCondition::new() }
         }
-    }
-    impl UserSelecter {
+
         pub fn SELECT<const N: usize, F: Fn(UserColumns) -> [UserColumn; N]>(mut self, columns_selector: F) -> Self {
             self.columns = SelectUserColumns::from(columns_selector(USER_COLUMNS));
             self
@@ -323,13 +347,6 @@ pub mod __private {
             self
         }
     }
-
-    pub trait UserRow<'r, R: sqlx::Row>: sqlx::FromRow<'r, R> {
-        fn from_row(row: &'r R) -> Result<Self, sqlx::Error> {
-            <Self as sqlx::FromRow<'r, R>>::from_row(row)
-        }
-    }
-
     impl<'q, DB: sqlx::Database> sqlx::Execute<'q, DB> for UserSelecter {
         fn sql(&self) -> &'q str {
             todo!()
