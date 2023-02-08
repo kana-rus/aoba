@@ -220,9 +220,6 @@ pub mod __private {
             todo!()
         }
     }
-    impl<'r, R: sqlx::Row> aoba::Exec<'r, R> for UserCreaterReturning {
-        type Return = ;
-    }
 
     pub struct UserUpdater {
         set_values: UpdateUser,
