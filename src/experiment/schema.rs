@@ -44,35 +44,53 @@ pub mod entity {
     }
 }
 
+mod row {
+    #![allow(unused, non_snake_case, non_camel_case_types)]
+    use crate::experiment::aoba;
+
+    pub struct User_id_name_password {pub id: u32, pub name: aoba::string, pub password: aoba::string}
+    pub struct User_id_name {pub id: u32, pub name: aoba::string}
+    pub struct User_id_password {pub id: u32, pub password: aoba::string}
+    pub struct User_name_password {pub name: aoba::string, pub password: aoba::string}
+    pub struct User_id {pub id: u32}
+    pub struct User_name {pub name: aoba::string}
+    pub struct User_password {pub password: aoba::string}
+}
+
 pub mod __private {
     #![allow(unused, non_snake_case, non_camel_case_types)]
+    use super::entity::User;
 
     use crate::experiment::aoba;
 
-    use super::entity::User;
-
-    pub struct UpdateUser {
-        id: Option<u32>,
-        name: Option<aoba::string>,
-        password: Option<aoba::string>,
+    pub struct SelectUserColumns {
+        id: bool,
+        name: bool,
+        password: bool,
     }
-    impl UpdateUser {
-        #[inline]
-        pub(super) fn new() -> Self {
-            Self { id: None, name: None, password: None }
+    impl SelectUserColumns {
+        #[inline] pub(super) fn new() -> Self {
+            Self { id: true, name: true, password: true }
         }
     }
-    impl UpdateUser {
-        pub fn name<Str: Into<aoba::string>>(mut self, name: Str) -> Self {
-            self.name = Some(name.into());
-            self
-        }
-        pub fn password<Str: Into<aoba::string>>(mut self, password: Str) -> Self {
-            self.password = Some(password.into());
-            self
+    impl From<UserColumns> for SelectUserColumns {
+        #[inline] fn from(value: UserColumns) -> Self {
+            SelectUserColumns { id: true, name: true, password: true }
         }
     }
-
+    impl<const N: usize> From<[UserColumn; N]> for SelectUserColumns {
+        #[inline] fn from(value: [UserColumn; N]) -> Self {
+            let mut select = Self { id: false, name: false, password: false };
+            for column in value.into_iter() {
+                match column {
+                    UserColumn::id => select.id = true,
+                    UserColumn::name => select.name = true,
+                    UserColumn::password => select.password = true,
+                }
+            }
+            select
+        }
+    }
     pub struct UserColumns {
         pub id: UserColumn,
         pub name: UserColumn,
@@ -83,12 +101,17 @@ pub mod __private {
         name: UserColumn::name,
         password: UserColumn::password,
     };
+    impl Into<[UserColumn; 3]> for UserColumns {
+        fn into(self) -> [UserColumn; 3] {
+            [self.id, self.name, self.password]
+        }
+    }
     pub enum UserColumn {
         id,
         name,
         password,
     } impl UserColumn {
-        fn as_column_name(self) -> &'static str {
+        #[inline] fn as_name(self) -> &'static str {
             match self {
                 Self::id => "id",
                 Self::name => "name",
@@ -96,18 +119,19 @@ pub mod __private {
             }
         }
     }
+
     struct OrderUserBy {
         id: Option<aoba::Order>,
         name: Option<aoba::Order>,
         password: Option<aoba::Order>,
     }
     impl OrderUserBy {
-        pub(super) fn new() -> Self {
+        #[inline] pub(super) fn new() -> Self {
             Self { id: None, name: None, password: None }
         }
     }
     impl OrderUserBy {
-        fn set(&mut self, column: UserColumn, order: aoba::Order) {
+        #[inline] fn set(&mut self, column: UserColumn, order: aoba::Order) {
             match column {
                 UserColumn::id => self.id = Some(order),
                 UserColumn::name => self.name = Some(order),
@@ -116,102 +140,104 @@ pub mod __private {
         }
     }
 
-    struct SelectUserColumns {
-        id: bool,
-        name: bool,
-        password: bool,
-    }
-    impl SelectUserColumns {
-        pub(super) fn new() -> Self {
-            Self { id: true, name: true, password: true }
-        }
-    }
-    impl SelectUserColumns {
-        fn from<const N: usize>(columns: [UserColumn; N]) -> Self {
-            let mut select = Self { id: false, name: false, password: false };
-            for column in columns.into_iter() {
-                match column {
-                    UserColumn::id => select.id = true,
-                    UserColumn::name => select.name = true,
-                    UserColumn::password => select.password = true,
-                }
-            }
-            select
-        }
-    }
-
     pub struct UserCondition(String);
     impl UserCondition {
-        #[inline]
-        pub(super) fn new() -> Self {
+        #[inline] pub(super) fn new() -> Self {
             Self(String::from("WHERE"))
         }
-        #[inline]
-        fn is_empty(&self) -> bool {
+        #[inline] fn is_empty(&self) -> bool {
             self.0.len() == 5
         }
-        #[inline]
-        fn and(mut self, new_condition: String) -> Self {
+        #[inline] fn and(mut self, new_condition: String) -> Self {
             self.0 += if self.is_empty() {" AND "} else {" "};
             self.0 += &new_condition;
             self
         }
     }
     impl UserCondition {
-        pub fn id_eq(mut self, another: u32) -> Self {
+        #[inline] pub fn id_eq(mut self, another: u32) -> Self {
             self.and(format!("id = {another}"))
         }
-        pub fn id_between(mut self, left: u32, right: u32) -> Self {
+        #[inline] pub fn id_between(mut self, left: u32, right: u32) -> Self {
             self.and(format!("id BETWEEN {left} AND {right}"))
         }
 
-        pub fn name_eq<Str: Into<aoba::string>>(mut self, another: Str) -> Self {
+        #[inline] pub fn name_eq<Str: Into<aoba::string>>(mut self, another: Str) -> Self {
             self.and(format!("name = '{}'", another.into().as_str()))
         }
-        pub fn name_like<Str: Into<aoba::string>>(mut self, regex: Str) -> Self {
+        #[inline] pub fn name_like<Str: Into<aoba::string>>(mut self, regex: Str) -> Self {
             self.and(format!("name LIKE '{}'", regex.into().as_str()))
         }
 
-        pub fn password_eq<Str: Into<aoba::string>>(mut self, another: Str) -> Self {
+        #[inline] pub fn password_eq<Str: Into<aoba::string>>(mut self, another: Str) -> Self {
             self.and(format!("password = '{}'", another.into().as_str()))
         }
-        pub fn password_like<Str: Into<aoba::string>>(mut self, regex: Str) -> Self {
+        #[inline] pub fn password_like<Str: Into<aoba::string>>(mut self, regex: Str) -> Self {
             self.and(format!("password LIKE '{}'", regex.into().as_str()))
         }
     }
 
-    pub struct UserCreater<NameStr: Into<aoba::string>, PasswordStr: Into<aoba::string>>(User<NameStr, PasswordStr>);
-    impl<NameStr: Into<aoba::string>, PasswordStr: Into<aoba::string>> UserCreater<NameStr, PasswordStr> {
-        pub(super) fn new(create_user: User<NameStr, PasswordStr>) -> Self {
+    pub struct UserCreater<NameStr: Into<aoba::string>, PasswordStr: Into<aoba::string>>(
+        User<NameStr, PasswordStr>
+    ); impl<NameStr: Into<aoba::string>, PasswordStr: Into<aoba::string>> UserCreater<NameStr, PasswordStr> {
+        #[inline] pub(super) fn new(create_user: User<NameStr, PasswordStr>) -> Self {
             Self(create_user)
         }
+
+        #[inline] pub fn RETURNING<F: Fn(UserColumns) -> U, U: Into<SelectUserColumns>>(
+            self,
+            select_columns: F,
+        ) -> UserCreaterReturning<NameStr, PasswordStr> {
+            let columns = select_columns(USER_COLUMNS).into();
+            UserCreaterReturning { entity: self.0, columns }
+        }
+    }
+    pub struct UserCreaterReturning<NameStr: Into<aoba::string>, PasswordStr: Into<aoba::string>> {
+        entity:  User<NameStr, PasswordStr>,
+        columns: SelectUserColumns,
+    } impl<NameStr: Into<aoba::string>, PasswordStr: Into<aoba::string>> UserCreaterReturning<NameStr, PasswordStr> {
+
     }
 
     pub struct UserUpdater {
         set_values: UpdateUser,
         limit:      Option<usize>,
         condition:  UserCondition,
-    }
-    impl UserUpdater {
-        pub(super) fn new() -> Self {
+    } impl UserUpdater {
+        #[inline] pub(super) fn new() -> Self {
             Self { set_values: UpdateUser::new(), limit: None, condition: UserCondition::new() }
         }
-    }
-    impl UserUpdater {
-        pub fn SET<F: Fn(UpdateUser) -> UpdateUser>(mut self, values_setter: F) -> Self {
+        #[inline] pub fn SET<F: Fn(UpdateUser) -> UpdateUser>(mut self, values_setter: F) -> Self {
             self.set_values = values_setter(self.set_values);
             self
         }
         // ======
-        pub fn WHERE<F: Fn(UserCondition) -> UserCondition>(mut self, condition_builder: F) -> Self {
+        #[inline] pub fn WHERE<F: Fn(UserCondition) -> UserCondition>(mut self, condition_builder: F) -> Self {
             self.condition = condition_builder(self.condition);
             self
         }
-        pub fn LIMIT(mut self, limit: usize) -> Self {
+        #[inline] pub fn LIMIT(mut self, limit: usize) -> Self {
             self.limit = Some(limit);
             self
         }
         // =====
+    }
+    pub struct UpdateUser {
+        id: Option<u32>,
+        name: Option<aoba::string>,
+        password: Option<aoba::string>,
+    } impl UpdateUser {
+        #[inline] pub(super) fn new() -> Self {
+            Self { id: None, name: None, password: None }
+        }
+        #[inline] pub fn name<Str: Into<aoba::string>>(mut self, name: Str) -> Self {
+            self.name = Some(name.into());
+            self
+        }
+        #[inline] pub fn password<Str: Into<aoba::string>>(mut self, password: Str) -> Self {
+            self.password = Some(password.into());
+            self
+        }
     }
 
     pub struct UserDeleter {
@@ -225,11 +251,11 @@ pub mod __private {
     }
     impl UserDeleter {
         // ======
-        pub fn WHERE<F: Fn(UserCondition) -> UserCondition>(mut self, condition_builder: F) -> Self {
+        #[inline] pub fn WHERE<F: Fn(UserCondition) -> UserCondition>(mut self, condition_builder: F) -> Self {
             self.condition = condition_builder(self.condition);
             self
         }
-        pub fn LIMIT(mut self, limit: usize) -> Self {
+        #[inline] pub fn LIMIT(mut self, limit: usize) -> Self {
             self.limit = Some(limit);
             self
         }
@@ -237,10 +263,10 @@ pub mod __private {
     }
 
     pub struct UsersSelecter {
-        columns:   SelectUserColumns,
         limit:     Option<usize>,
         order:     OrderUserBy,
         condition: UserCondition,
+        columns:   SelectUserColumns,
     }
     impl UsersSelecter {
         pub(super) fn new() -> Self {
@@ -318,6 +344,29 @@ pub mod __private {
             true
         }
     }
+
+    impl UserSelecter {
+        // pub async fn exec<'e, E: sqlx::Executor<'e>>(
+        //     self,
+        //     executor: E,
+        // ) -> Result<<<E as sqlx::Executor<'e>>::Database as sqlx::Database>::QueryResult, sqlx::Error> {
+        //     executor.execute(self).await
+        // }
+        pub async fn save<'e, E: sqlx::Executor<'e>, As>(
+            self,
+            executor: E,
+        ) {
+            // executor.fetch_one(self)
+            //     .await
+            //     .map(|row| As::from_row)
+
+            todo!()
+        }
+        // pub async fn save<'e, E: sqlx::Executor<'e>, As>(self, executor: E) -> sqlx::Result<As> {
+        //     let row = executor.fe;
+        // }
+    }
+
     // impl aoba::Query for UserSelecter {
     //     type DB = sqlx::Postgres;
     //     fn exec<'e, E: sqlx::Executor<'e>>(
