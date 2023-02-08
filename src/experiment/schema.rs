@@ -12,7 +12,7 @@ pub mod table {
     #![allow(unused, non_snake_case, non_camel_case_types)]
 
     use crate::experiment::aoba;
-    use super::{__private::*, entity::User};
+    use super::{__private::*, entity::{User, NewUser}};
 
     pub struct users {
         pub id: UserColumn,
@@ -20,7 +20,7 @@ pub mod table {
         pub password: UserColumn,
     }
     impl users {
-        pub fn CREATE(user: User) -> UserCreater {
+        pub fn CREATE(user: NewUser) -> UserCreater {
             UserCreater::new(user)
         }
         pub fn FIRST() -> UserSelecter {
@@ -72,7 +72,7 @@ pub mod __private {
     #![allow(unused, non_snake_case, non_camel_case_types)]
     use sqlx::{FromRow, Value, Row};
 
-    use super::{entity::User, table::{users}};
+    use super::{entity::{User, NewUser}, table::{users}};
 
     use crate::experiment::aoba;
 
@@ -207,10 +207,10 @@ pub mod __private {
     }
 
     pub struct UserCreater(
-        User
+        NewUser
     );
     impl UserCreater {
-        #[inline] pub(super) fn new(create_user: User) -> Self {
+        #[inline] pub(super) fn new(create_user: NewUser) -> Self {
             Self(create_user)
         }
 
@@ -230,20 +230,20 @@ pub mod __private {
             todo!()
         }
     }
-    impl<'e, 'r, E: sqlx::Executor<'e>> aoba::Query<'e, 'r, E> for UserCreater
+    impl<'e, E: sqlx::Executor<'e>> aoba::Query<'e, E> for UserCreater
     where
-        &'r std::primitive::str: sqlx::ColumnIndex<<E::Database as sqlx::Database>::Row>,
-        u32: sqlx::decode::Decode<'r, <<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
-        u32: sqlx::types::Type<<<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
-        String: sqlx::decode::Decode<'r, <<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
-        String: sqlx::types::Type<<<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
+        for <'r> &'r std::primitive::str: sqlx::ColumnIndex<<E::Database as sqlx::Database>::Row>,
+        u32: for <'r> sqlx::decode::Decode<'r, <<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
+        u32: for <'r> sqlx::types::Type<<<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
+        String: for <'r> sqlx::decode::Decode<'r, <<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
+        String: for <'r> sqlx::types::Type<<<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
     {
         type Return = User;
 
         #[inline] async fn exec(self, executer: E) -> Result<aoba::QuerySucceed, sqlx::Error> {
             executer.execute(self).await.map(|_| aoba::QuerySucceed)
         }
-        #[inline] async fn save(self, executer: E) -> Result<<Self as aoba::Query<'e, 'r, E>>::Return, sqlx::Error> {
+        #[inline] async fn save(self, executer: E) -> Result<<Self as aoba::Query<'e, E>>::Return, sqlx::Error> {
             let row = executer
                 .fetch_one(self)
                 .await?;

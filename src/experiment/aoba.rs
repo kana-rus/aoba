@@ -43,11 +43,11 @@ impl string for &str {
     fn as_str(&self) -> &str {self}
 }
 
-pub trait Query<'e, 'r, E: Executor<'e>> {
-    type Return: FromRow<'r, <<E as Executor<'e>>::Database as sqlx::Database>::Row>;
+pub trait Query<'e, E: Executor<'e>> {
+    type Return: for <'r> FromRow<'r, <<E as Executor<'e>>::Database as sqlx::Database>::Row>;
 
     async fn exec(self, executer: E) -> Result<QuerySucceed, Error>;
-    async fn save(self, executer: E) -> Result<<Self as Query<'e, 'r, E>>::Return, Error>;
+    async fn save(self, executer: E) -> Result<<Self as Query<'e, E>>::Return, Error>;
 }
 
 pub struct QuerySucceed;
