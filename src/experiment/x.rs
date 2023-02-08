@@ -57,59 +57,144 @@ when
 }
 */
 
+const COLUMNS: Columns = Columns {
+    id: Column::id,
+    name: Column::name,
+};
+struct Columns {
+    id: Column,
+    name: Column,
+}
+enum Column {
+    id,
+    name,
+}
+
+impl<const N: usize> Into<Select> for [Column; N] {
+    fn into(self) -> Select {
+        let mut select = Select { id: false, name: false };
+        for column in self.into_iter() {
+            match column {
+                Column::id => select.id = true,
+                Column::name => select.name = true,
+            }
+        }
+        select
+    }
+}
+
+struct Entity {
+    id: u32,
+    name: &'static str,
+}
+struct Select {
+    id: bool,
+    name: bool,
+}
 
 struct Operator<const N: usize> {
     entity: Entity
-} struct Entity {
-    id: u32,
-    name: &'static str,
 }
-
-// ========================================
-impl Operator<0> {
-    fn save(self) -> Column_id_name {
-        Column_id_name {
-            id: self.entity.id,
-            name: self.entity.name,
+struct Data {
+    entity: Entity,
+} impl Data {
+    fn new(id: u32, name: &'static str) -> Self {
+        Self {
+            entity: Entity {id, name}
         }
     }
-} struct Column_id_name {
-    id: u32,
-    name: &'static str,
+
+    // fn convert<
+    //     S: Into<Select>,
+    //     // F: Fn(Columns) -> S,
+    //     const N: usize,
+    //     const SELECTOR: fn(),
+    // >(
+    //     self,
+// 
+    // ) {
+// 
+    // }
 }
 
-impl Operator<1> {
-    fn save(self) -> u32 {
-        self.entity.id
+fn check() {
+
+}
+
+const fn into_n(array: [bool; 2]) -> usize {
+    match array {
+        [true, true] => 0,
+        [true, false] => 1,
+        [false, true] => 2,
+        [false, false] => 3,
     }
 }
 
-impl Operator<2> {
-    fn save(self) -> &'static str {
-        self.entity.name
+
+
+struct Column_id_name {id: u32, name: &'static str}
+struct Column_id {id: u32}
+struct Column_name {name: &'static str}
+const _: (/* Operator impls */) = {
+    impl Operator<0> {
+        fn save(self) -> Column_id_name {
+            Column_id_name {
+                id: self.entity.id,
+                name: self.entity.name,
+            }
+        }
     }
-}
-// ========================================
+    impl Operator<1> {
+        fn save(self) -> Column_id {
+            Column_id {
+                id: self.entity.id
+            }
+        }
+    }
+    impl Operator<2> {
+        fn save(self) -> Column_name {
+            Column_name {
+                name: self.entity.name
+            }
+        }
+    }
+};
 
 fn main() {
     let _: Column_id_name = Operator::<0> {
         entity: Entity {
             id: 0,
-            name: "I am entity",
+            name: "I am entity 0",
         }
     }.save();
 
-    let _: u32 = Operator::<1> {
+    let _: Column_id = Operator::<1> {
         entity: Entity {
             id: 1,
-            name: "I am entity",
+            name: "I am entity 1",
         }
     }.save();
 
-    let _: &'static str = Operator::<2> {
+    let _: Column_name = Operator::<2> {
         entity: Entity {
             id: 2,
+            name: "I am entity 2",
+        }
+    }.save();
+    
+    
+
+    let data = Data {
+        entity: Entity {
+            id: 314,
             name: "I am entity",
         }
-    }.save();    
+    };
+    // let columns: Operator<3> = data
+        // .convert(|d| [
+        //     d.id,
+        //     d.name,
+        // ])
+        ;//.save();
+    // let name: &'static str = columns.name;
 }

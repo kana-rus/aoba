@@ -14,15 +14,19 @@ pub mod table {
     use crate::experiment::aoba;
     use super::{__private::*, entity::User};
 
-    pub struct users;
+    pub struct users {
+        pub id: UserColumn,
+        pub name: UserColumn,
+        pub password: UserColumn,
+    }
     impl users {
         pub fn CREATE(user: User) -> UserCreater {
             UserCreater::new(user)
         }
-        pub fn FIRST() -> UserSelecter {
+        pub fn FIRST<const COLUMNS: &'static [UserColumn]>() -> UserSelecter<{select_pattern(COLUMNS)}> {
             UserSelecter::new()
         }
-        pub fn ALL() -> UsersSelecter {
+        pub fn ALL<const COLUMNS: &'static [UserColumn]>() -> UsersSelecter<{select_pattern(COLUMNS)}> {
             UsersSelecter::new()
         }
         pub fn UPDATE() -> UserUpdater {
@@ -31,6 +35,10 @@ pub mod table {
         pub fn DELETE() -> UserDeleter {
             UserDeleter::new()
         }
+    }
+
+    #[inline] const fn select_pattern(columns: &'static [UserColumn]) -> usize {
+        columns.iter().fold(0, |it, next| )
     }
 }
 
@@ -59,53 +67,59 @@ mod row {
 
 pub mod __private {
     #![allow(unused, non_snake_case, non_camel_case_types)]
-    use super::entity::User;
+    use super::{entity::User, table::users};
 
     use crate::experiment::aoba;
 
-    pub struct SelectUserColumns {
-        id: bool,
-        name: bool,
-        password: bool,
-    }
-    impl SelectUserColumns {
-        #[inline] pub(super) fn new() -> Self {
-            Self { id: true, name: true, password: true }
-        }
-    }
-    impl From<UserColumns> for SelectUserColumns {
-        #[inline] fn from(value: UserColumns) -> Self {
-            SelectUserColumns { id: true, name: true, password: true }
-        }
-    }
-    impl<const N: usize> From<[UserColumn; N]> for SelectUserColumns {
-        #[inline] fn from(value: [UserColumn; N]) -> Self {
-            let mut select = Self { id: false, name: false, password: false };
-            for column in value.into_iter() {
-                match column {
-                    UserColumn::id => select.id = true,
-                    UserColumn::name => select.name = true,
-                    UserColumn::password => select.password = true,
-                }
-            }
-            select
-        }
-    }
-    pub struct UserColumns {
-        pub id: UserColumn,
-        pub name: UserColumn,
-        pub password: UserColumn,
-    }
-    const USER_COLUMNS: UserColumns = UserColumns {
+    // pub struct SelectUserColumns {
+    //     id: bool,
+    //     name: bool,
+    //     password: bool,
+    // }
+    // impl SelectUserColumns {
+    //     #[inline] pub(super) fn new() -> Self {
+    //         Self { id: true, name: true, password: true }
+    //     }
+    // }
+    // impl From<UserColumns> for SelectUserColumns {
+    //     #[inline] fn from(value: UserColumns) -> Self {
+    //         SelectUserColumns { id: true, name: true, password: true }
+    //     }
+    // }
+    // impl<const N: usize> From<[UserColumn; N]> for SelectUserColumns {
+    //     #[inline] fn from(value: [UserColumn; N]) -> Self {
+    //         let mut select = Self { id: false, name: false, password: false };
+    //         for column in value.into_iter() {
+    //             match column {
+    //                 UserColumn::id => select.id = true,
+    //                 UserColumn::name => select.name = true,
+    //                 UserColumn::password => select.password = true,
+    //             }
+    //         }
+    //         select
+    //     }
+    // }
+    // pub struct UserColumns {
+    //     pub id: UserColumn,
+    //     pub name: UserColumn,
+    //     pub password: UserColumn,
+    // }
+    // const USER_COLUMNS: UserColumns = UserColumns {
+    //     id: UserColumn::id,
+    //     name: UserColumn::name,
+    //     password: UserColumn::password,
+    // };
+    // impl Into<[UserColumn; 3]> for UserColumns {
+    //     fn into(self) -> [UserColumn; 3] {
+    //         [self.id, self.name, self.password]
+    //     }
+    // }
+    const USER_COLUMNS: users = users {
         id: UserColumn::id,
         name: UserColumn::name,
         password: UserColumn::password,
     };
-    impl Into<[UserColumn; 3]> for UserColumns {
-        fn into(self) -> [UserColumn; 3] {
-            [self.id, self.name, self.password]
-        }
-    }
+    #[derive(PartialEq, Eq)]
     pub enum UserColumn {
         id,
         name,
@@ -185,13 +199,13 @@ pub mod __private {
             Self(create_user)
         }
 
-        #[inline] pub fn RETURNING<F: Fn(UserColumns) -> U, U: Into<SelectUserColumns>>(
-            self,
-            select_columns: F,
-        ) -> UserCreaterReturning {
-            let columns = select_columns(USER_COLUMNS).into();
-            UserCreaterReturning { entity: self.0, columns }
-        }
+        // #[inline] pub fn RETURNING<F: Fn(UserColumns) -> U, U: Into<SelectUserColumns>>(
+        //     self,
+        //     select_columns: F,
+        // ) -> UserCreaterReturning {
+        //     let columns = select_columns(USER_COLUMNS).into();
+        //     UserCreaterReturning { entity: self.0, columns }
+        // }
     }
     impl<'q, DB: sqlx::Database> sqlx::Execute<'q, DB> for UserCreater {
         fn statement(&self) -> Option<&<DB as sqlx::database::HasStatement<'q>>::Statement> {None}
@@ -208,18 +222,18 @@ pub mod __private {
         }
     }
 
-    pub struct UserCreaterReturning {
-        entity:  User,
-        columns: SelectUserColumns,
-    }
-    impl<'q, DB: sqlx::Database> sqlx::Execute<'q, DB> for UserCreaterReturning {
-        fn statement(&self) -> Option<&<DB as sqlx::database::HasStatement<'q>>::Statement> {None}
-        fn take_arguments(&mut self) -> Option<<DB as sqlx::database::HasArguments<'q>>::Arguments> {None}
-        fn persistent(&self) -> bool {true}
-        fn sql(&self) -> &'q str {
-            todo!()
-        }
-    }
+    // pub struct UserCreaterReturning {
+    //     entity:  User,
+    //     columns: SelectUserColumns,
+    // }
+    // impl<'q, DB: sqlx::Database> sqlx::Execute<'q, DB> for UserCreaterReturning {
+    //     fn statement(&self) -> Option<&<DB as sqlx::database::HasStatement<'q>>::Statement> {None}
+    //     fn take_arguments(&mut self) -> Option<<DB as sqlx::database::HasArguments<'q>>::Arguments> {None}
+    //     fn persistent(&self) -> bool {true}
+    //     fn sql(&self) -> &'q str {
+    //         todo!()
+    //     }
+    // }
 
     pub struct UserUpdater {
         set_values: UpdateUser,
@@ -284,28 +298,19 @@ pub mod __private {
         // =====
     }
 
-    pub struct UsersSelecter {
+    pub struct UsersSelecter<const SELET_PATTERN: usize> {
         limit:     Option<usize>,
         order:     OrderUserBy,
         condition: UserCondition,
-        columns:   SelectUserColumns,
     }
-    impl UsersSelecter {
+    impl<const SELET_PATTERN: usize> UsersSelecter<SELET_PATTERN> {
         pub(super) fn new() -> Self {
             Self {
-                columns: SelectUserColumns::new(),
                 limit: None,
                 order: OrderUserBy::new(),
                 condition: UserCondition::new(),
             }
         }
-    }
-    impl UsersSelecter {
-        pub fn SELECT<const N: usize, F: Fn(UserColumns) -> [UserColumn; N]>(mut self, columns_selector: F) -> Self {
-            self.columns = SelectUserColumns::from(columns_selector(USER_COLUMNS));
-            self
-        }
-
         // ======
         pub fn WHERE<F: Fn(UserCondition) -> UserCondition>(mut self, condition_builder: F) -> Self {
             self.condition = condition_builder(self.condition);
@@ -315,36 +320,30 @@ pub mod __private {
             self.limit = Some(limit);
             self
         }
-        pub fn ORDER_BY<F: Fn(UserColumns) -> UserColumn>(mut self, column_selecter: F) -> Self {
-            self.order.set(column_selecter(USER_COLUMNS), aoba::Order::Asc);
+        pub fn ORDER_BY(mut self, column: UserColumn) -> Self {
+            self.order.set(column, aoba::Order::Asc);
             self
         }
-        pub fn ORDER_BY_REVERSED<F: Fn(UserColumns) -> UserColumn>(mut self, column_selecter: F) -> Self {
-            self.order.set(column_selecter(USER_COLUMNS), aoba::Order::Desc);
+        pub fn ORDER_BY_REVERSED(mut self, column: UserColumn) -> Self {
+            self.order.set(column, aoba::Order::Desc);
             self
         }
         // =====
     }
 
-    pub struct UserSelecter {
-        columns:   SelectUserColumns,
+    pub struct UserSelecter<const SELET_PATTERN: usize> {
         condition: UserCondition,
     }
-    impl UserSelecter {
+    impl<const SELET_PATTERN: usize> UserSelecter<SELET_PATTERN> {
         pub(super) fn new() -> Self {
-            Self { columns: SelectUserColumns::new(), condition: UserCondition::new() }
-        }
-
-        pub fn SELECT<const N: usize, F: Fn(UserColumns) -> [UserColumn; N]>(mut self, columns_selector: F) -> Self {
-            self.columns = SelectUserColumns::from(columns_selector(USER_COLUMNS));
-            self
+            Self { condition: UserCondition::new() }
         }
         pub fn WHERE<F: Fn(UserCondition) -> UserCondition>(mut self, condition_builder: F) -> Self {
             self.condition = condition_builder(self.condition);
             self
         }
     }
-    impl<'q, DB: sqlx::Database> sqlx::Execute<'q, DB> for UserSelecter {
+    impl<'q, const SELET_PATTERN: usize, DB: sqlx::Database> sqlx::Execute<'q, DB> for UserSelecter<SELET_PATTERN> {
         fn sql(&self) -> &'q str {
             todo!()
         }
@@ -358,48 +357,4 @@ pub mod __private {
             true
         }
     }
-
-    impl UserSelecter {
-        // pub async fn exec<'e, E: sqlx::Executor<'e>>(
-        //     self,
-        //     executor: E,
-        // ) -> Result<<<E as sqlx::Executor<'e>>::Database as sqlx::Database>::QueryResult, sqlx::Error> {
-        //     executor.execute(self).await
-        // }
-        pub async fn save<'e, E: sqlx::Executor<'e>, As>(
-            self,
-            executor: E,
-        ) {
-            // executor.fetch_one(self)
-            //     .await
-            //     .map(|row| As::from_row)
-
-            todo!()
-        }
-        // pub async fn save<'e, E: sqlx::Executor<'e>, As>(self, executor: E) -> sqlx::Result<As> {
-        //     let row = executor.fe;
-        // }
-    }
-
-    // impl aoba::Query for UserSelecter {
-    //     type DB = sqlx::Postgres;
-    //     fn exec<'e, E: sqlx::Executor<'e>>(
-    //         self,
-    //         executor: E,
-    //     ) -> futures_core::stream::BoxStream<'e, sqlx::Result<<Self::DB as sqlx::Database>::QueryResult>> {
-    //         // Pin<Box<dyn Stream<Item = Result<<<E as Executor<'e>>::Database as sqlx::Database>::QueryResult, sqlx::Error>> + Send>>
-    //         executor.execute_many(self)
-    //     }
-    //     fn save<'e, 'r, As: sqlx::FromRow<'r, R>, R: sqlx::Row, E: sqlx::Executor<'e>>(
-    //         self,
-    //         executor: E,
-    //     ) -> futures_core::stream::BoxStream<'e, sqlx::Result<As>> {
-    //         let row = executor.fetch_one(self);
-    //     }
-    // }
-    // impl UserSelecter {
-    //     pub fn exec<'e, E: sqlx::Executor<'e>>(self, executor: E) {
-    //         executor.
-    //     }
-    // }
 }
