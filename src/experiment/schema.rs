@@ -23,10 +23,10 @@ pub mod table {
         pub fn CREATE(user: User) -> UserCreater {
             UserCreater::new(user)
         }
-        pub fn FIRST<const COLUMNS: &'static [UserColumn]>() -> UserSelecter<{select_pattern(COLUMNS)}> {
+        pub fn FIRST() -> UserSelecter {
             UserSelecter::new()
         }
-        pub fn ALL<const COLUMNS: &'static [UserColumn]>() -> UsersSelecter<{select_pattern(COLUMNS)}> {
+        pub fn ALL() -> UsersSelecter {
             UsersSelecter::new()
         }
         pub fn UPDATE() -> UserUpdater {
@@ -36,38 +36,43 @@ pub mod table {
             UserDeleter::new()
         }
     }
-
-    #[inline] const fn select_pattern(columns: &'static [UserColumn]) -> usize {
-        columns.iter().fold(0, |it, next| )
-    }
 }
 
 pub mod entity {
     #![allow(unused, non_snake_case, non_camel_case_types)]
     use crate::experiment::aoba;
 
+    pub struct NewUser {
+        pub name: String,
+        pub password: String,
+    }
+
+    #[derive(sqlx::FromRow)]
     pub struct User {
+        pub id: u32,
         pub name: String,
         pub password: String,
     }
 }
 
-mod row {
-    #![allow(unused, non_snake_case, non_camel_case_types)]
-    use crate::experiment::aoba;
-
-    pub struct User_id_name_password {pub id: u32, pub name: String, pub password: String}
-    pub struct User_id_name {pub id: u32, pub name: String}
-    pub struct User_id_password {pub id: u32, pub password: String}
-    pub struct User_name_password {pub name: String, pub password: String}
-    pub struct User_id {pub id: u32}
-    pub struct User_name {pub name: String}
-    pub struct User_password {pub password: String}
-}
+// mod row {
+//     #![allow(unused, non_snake_case, non_camel_case_types)]
+//     use crate::experiment::aoba;
+// 
+//     pub struct User_id_name_password {pub id: u32, pub name: String, pub password: String}
+//     pub struct User_id_name {pub id: u32, pub name: String}
+//     pub struct User_id_password {pub id: u32, pub password: String}
+//     pub struct User_name_password {pub name: String, pub password: String}
+//     pub struct User_id {pub id: u32}
+//     pub struct User_name {pub name: String}
+//     pub struct User_password {pub password: String}
+// }
 
 pub mod __private {
     #![allow(unused, non_snake_case, non_camel_case_types)]
-    use super::{entity::User, table::users};
+    use sqlx::{FromRow, Value, Row};
+
+    use super::{entity::User, table::{users}};
 
     use crate::experiment::aoba;
 
@@ -81,45 +86,55 @@ pub mod __private {
     //         Self { id: true, name: true, password: true }
     //     }
     // }
-    // impl From<UserColumns> for SelectUserColumns {
-    //     #[inline] fn from(value: UserColumns) -> Self {
-    //         SelectUserColumns { id: true, name: true, password: true }
+    // const _: () = {
+    //     impl From<users> for SelectUserColumns {
+    //         #[inline] fn from(value: users) -> Self {
+    //             SelectUserColumns { id: true, name: true, password: true }
+    //         }
     //     }
-    // }
-    // impl<const N: usize> From<[UserColumn; N]> for SelectUserColumns {
-    //     #[inline] fn from(value: [UserColumn; N]) -> Self {
-    //         let mut select = Self { id: false, name: false, password: false };
-    //         for column in value.into_iter() {
-    //             match column {
+    //     impl From<[UserColumn; 1]> for SelectUserColumns {
+    //         #[inline] fn from(value: [UserColumn; 1]) -> Self {
+    //             let mut select = Self { id: false, name: false, password: false };
+    //             match value[0] {
     //                 UserColumn::id => select.id = true,
     //                 UserColumn::name => select.name = true,
     //                 UserColumn::password => select.password = true,
     //             }
+    //             select
     //         }
-    //         select
     //     }
-    // }
-    // pub struct UserColumns {
-    //     pub id: UserColumn,
-    //     pub name: UserColumn,
-    //     pub password: UserColumn,
-    // }
-    // const USER_COLUMNS: UserColumns = UserColumns {
-    //     id: UserColumn::id,
-    //     name: UserColumn::name,
-    //     password: UserColumn::password,
+    //     impl From<[UserColumn; 2]> for SelectUserColumns {
+    //         #[inline] fn from(value: [UserColumn; 2]) -> Self {
+    //             let mut select = Self { id: false, name: false, password: false };
+    //             for column in value.into_iter() {
+    //                 match column {
+    //                     UserColumn::id => select.id = true,
+    //                     UserColumn::name => select.name = true,
+    //                     UserColumn::password => select.password = true,
+    //                 }
+    //             }
+    //             select
+    //         }
+    //     }
+    //     impl From<[UserColumn; 3]> for SelectUserColumns {
+    //         #[inline] fn from(value: [UserColumn; 3]) -> Self {
+    //             let mut select = Self { id: false, name: false, password: false };
+    //             for column in value.into_iter() {
+    //                 match column {
+    //                     UserColumn::id => select.id = true,
+    //                     UserColumn::name => select.name = true,
+    //                     UserColumn::password => select.password = true,
+    //                 }
+    //             }
+    //             select
+    //         }
+    //     }
     // };
-    // impl Into<[UserColumn; 3]> for UserColumns {
-    //     fn into(self) -> [UserColumn; 3] {
-    //         [self.id, self.name, self.password]
-    //     }
-    // }
     const USER_COLUMNS: users = users {
         id: UserColumn::id,
         name: UserColumn::name,
         password: UserColumn::password,
     };
-    #[derive(PartialEq, Eq)]
     pub enum UserColumn {
         id,
         name,
@@ -215,10 +230,24 @@ pub mod __private {
             todo!()
         }
     }
-    impl<'r, R: sqlx::Row> aoba::Exec<'r, R> for UserCreater {
-        type Return = aoba::QuerySucceed;
-        #[inline] async fn exec<'e, E: sqlx::Executor<'e>>(self, executer: E) -> Result<<Self as aoba::Exec<'r, R>>::Return, sqlx::Error> {
+    impl<'e, 'r, E: sqlx::Executor<'e>> aoba::Query<'e, 'r, E> for UserCreater
+    where
+        &'r std::primitive::str: sqlx::ColumnIndex<<E::Database as sqlx::Database>::Row>,
+        u32: sqlx::decode::Decode<'r, <<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
+        u32: sqlx::types::Type<<<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
+        String: sqlx::decode::Decode<'r, <<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
+        String: sqlx::types::Type<<<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
+    {
+        type Return = User;
+
+        #[inline] async fn exec(self, executer: E) -> Result<aoba::QuerySucceed, sqlx::Error> {
             executer.execute(self).await.map(|_| aoba::QuerySucceed)
+        }
+        #[inline] async fn save(self, executer: E) -> Result<<Self as aoba::Query<'e, 'r, E>>::Return, sqlx::Error> {
+            let row = executer
+                .fetch_one(self)
+                .await?;
+            <User as FromRow<<E::Database as sqlx::Database>::Row>>::from_row(&row)
         }
     }
 
@@ -247,7 +276,6 @@ pub mod __private {
             self.set_values = values_setter(self.set_values);
             self
         }
-        // ======
         #[inline] pub fn WHERE<F: Fn(UserCondition) -> UserCondition>(mut self, condition_builder: F) -> Self {
             self.condition = condition_builder(self.condition);
             self
@@ -256,7 +284,6 @@ pub mod __private {
             self.limit = Some(limit);
             self
         }
-        // =====
     }
     pub struct UpdateUser {
         id: Option<u32>,
@@ -286,7 +313,6 @@ pub mod __private {
         }
     }
     impl UserDeleter {
-        // ======
         #[inline] pub fn WHERE<F: Fn(UserCondition) -> UserCondition>(mut self, condition_builder: F) -> Self {
             self.condition = condition_builder(self.condition);
             self
@@ -295,23 +321,27 @@ pub mod __private {
             self.limit = Some(limit);
             self
         }
-        // =====
     }
 
-    pub struct UsersSelecter<const SELET_PATTERN: usize> {
+    pub struct UsersSelecter {
+        // select:    SelectUserColumns,
         limit:     Option<usize>,
         order:     OrderUserBy,
         condition: UserCondition,
     }
-    impl<const SELET_PATTERN: usize> UsersSelecter<SELET_PATTERN> {
+    impl UsersSelecter {
         pub(super) fn new() -> Self {
             Self {
-                limit: None,
-                order: OrderUserBy::new(),
+                // select:    SelectUserColumns::new(),
+                limit:     None,
+                order:     OrderUserBy::new(),
                 condition: UserCondition::new(),
             }
         }
-        // ======
+        // pub fn SELECT<Columns: Into<SelectUserColumns>, F: Fn(users) -> Columns>(mut self, select_columns: F) -> Self {
+        //     self.select = select_columns(USER_COLUMNS).into();
+        //     self
+        // }
         pub fn WHERE<F: Fn(UserCondition) -> UserCondition>(mut self, condition_builder: F) -> Self {
             self.condition = condition_builder(self.condition);
             self
@@ -320,30 +350,37 @@ pub mod __private {
             self.limit = Some(limit);
             self
         }
-        pub fn ORDER_BY(mut self, column: UserColumn) -> Self {
-            self.order.set(column, aoba::Order::Asc);
+        pub fn ORDER_BY<F: Fn(users) -> UserColumn>(mut self, select_column: F) -> Self {
+            self.order.set(select_column(USER_COLUMNS), aoba::Order::Asc);
             self
         }
-        pub fn ORDER_BY_REVERSED(mut self, column: UserColumn) -> Self {
-            self.order.set(column, aoba::Order::Desc);
+        pub fn ORDER_BY_REVERSED<F: Fn(users) -> UserColumn>(mut self, select_column: F) -> Self {
+            self.order.set(select_column(USER_COLUMNS), aoba::Order::Desc);
             self
         }
-        // =====
     }
 
-    pub struct UserSelecter<const SELET_PATTERN: usize> {
+    pub struct UserSelecter {
+        // select:    SelectUserColumns,
         condition: UserCondition,
     }
-    impl<const SELET_PATTERN: usize> UserSelecter<SELET_PATTERN> {
+    impl UserSelecter {
         pub(super) fn new() -> Self {
-            Self { condition: UserCondition::new() }
+            Self {
+                // select:    SelectUserColumns::new(),
+                condition: UserCondition::new(),
+            }
         }
+        // pub fn SELECT<Columns: Into<SelectUserColumns>, F: Fn(users) -> Columns>(mut self, select_columns: F) -> Self {
+        //     self.select = select_columns(USER_COLUMNS).into();
+        //     self
+        // }
         pub fn WHERE<F: Fn(UserCondition) -> UserCondition>(mut self, condition_builder: F) -> Self {
             self.condition = condition_builder(self.condition);
             self
         }
     }
-    impl<'q, const SELET_PATTERN: usize, DB: sqlx::Database> sqlx::Execute<'q, DB> for UserSelecter<SELET_PATTERN> {
+    impl<'q, DB: sqlx::Database> sqlx::Execute<'q, DB> for UserSelecter {
         fn sql(&self) -> &'q str {
             todo!()
         }

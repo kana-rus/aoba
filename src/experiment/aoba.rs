@@ -43,9 +43,11 @@ impl string for &str {
     fn as_str(&self) -> &str {self}
 }
 
-pub trait Exec<'r, R: Row> {
-    type Return: FromRow<'r, R>;
-    async fn exec<'e, E: Executor<'e>>(self, executer: E) -> Result<<Self as Exec<'r, R>>::Return, Error>;
+pub trait Query<'e, 'r, E: Executor<'e>> {
+    type Return: FromRow<'r, <<E as Executor<'e>>::Database as sqlx::Database>::Row>;
+
+    async fn exec(self, executer: E) -> Result<QuerySucceed, Error>;
+    async fn save(self, executer: E) -> Result<<Self as Query<'e, 'r, E>>::Return, Error>;
 }
 
 pub struct QuerySucceed;

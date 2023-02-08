@@ -1,12 +1,12 @@
 use super::schema::{
     table::users,
-    entity::User,
+    entity::NewUser,
 };
 
 fn _user_() {
     users::ALL()
         .LIMIT(100)
-        .ORDER_BY()
+        .ORDER_BY(|u| u.name)
         .ORDER_BY_REVERSED(|u| u.password)
         .WHERE(|u| u
             .name_like("%user")
@@ -15,7 +15,7 @@ fn _user_() {
 
     users::FIRST();
 
-    users::CREATE(User {
+    users::CREATE(NewUser {
         name: String::from("user1"),
         password: String::from("password"),
     });
