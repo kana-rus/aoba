@@ -49,7 +49,7 @@ pub mod entity {
 
     #[derive(sqlx::FromRow)]
     pub struct User {
-        pub id: u32,
+        pub id: i64,
         pub name: String,
         pub password: String,
     }
@@ -233,8 +233,8 @@ pub mod __private {
     impl<'e, E: sqlx::Executor<'e>> aoba::Query<'e, E> for UserCreater
     where
         for <'r> &'r std::primitive::str: sqlx::ColumnIndex<<E::Database as sqlx::Database>::Row>,
-        u32: for <'r> sqlx::decode::Decode<'r, <<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
-        u32: for <'r> sqlx::types::Type<<<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
+        i64: for <'r> sqlx::decode::Decode<'r, <<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
+        i64: for <'r> sqlx::types::Type<<<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
         String: for <'r> sqlx::decode::Decode<'r, <<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
         String: for <'r> sqlx::types::Type<<<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
     {

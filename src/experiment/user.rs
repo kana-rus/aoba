@@ -1,9 +1,17 @@
+use sqlx::ConnectOptions;
+
+use super::aoba::Query;
 use super::schema::{
     table::users,
     entity::NewUser,
 };
 
-fn _user_() {
+async fn _user_() {
+    let mut conn = sqlx::postgres::PgConnectOptions::new()
+        .connect()
+        .await
+        .unwrap();
+
     users::ALL()
         .LIMIT(100)
         .ORDER_BY(|u| u.name)
@@ -15,10 +23,17 @@ fn _user_() {
 
     users::FIRST();
 
-    users::CREATE(NewUser {
+    let create_query = users::CREATE(NewUser {
         name: String::from("user1"),
         password: String::from("password"),
     });
+    let result  = create_query.exec(&mut conn).await;
+
+    let create_query = users::CREATE(NewUser {
+        name: String::from("user1"),
+        password: String::from("password"),
+    });
+    let created = create_query.save(&mut conn).await;
 
     users::UPDATE()
         .SET(|u| u
