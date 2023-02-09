@@ -12,7 +12,7 @@ pub mod table {
     #![allow(unused, non_snake_case, non_camel_case_types)]
 
     use crate::experiment::aoba;
-    use super::{__private::*, entity::{User, NewUser}};
+    use super::{__private::*, entity::{User, newUser}};
 
     pub struct users {
         pub id: UserColumn,
@@ -20,20 +20,20 @@ pub mod table {
         pub password: UserColumn,
     }
     impl users {
-        pub fn CREATE(user: NewUser) -> UserCreater {
-            UserCreater::new(user)
+        pub fn CREATE(user: newUser) -> CreateUser {
+            CreateUser::new(user)
         }
-        pub fn FIRST() -> UserSelecter {
-            UserSelecter::new()
+        pub fn FIRST() -> GetUser {
+            GetUser::new()
         }
-        pub fn ALL() -> UsersSelecter {
-            UsersSelecter::new()
+        pub fn ALL() -> GetUsers {
+            GetUsers::new()
         }
-        pub fn UPDATE() -> UserUpdater {
-            UserUpdater::new()
+        pub fn UPDATE() -> UpdateUsers {
+            UpdateUsers::new()
         }
-        pub fn DELETE() -> UserDeleter {
-            UserDeleter::new()
+        pub fn DELETE() -> DeleteUsers {
+            DeleteUsers::new()
         }
     }
 }
@@ -42,7 +42,7 @@ pub mod entity {
     #![allow(unused, non_snake_case, non_camel_case_types)]
     use crate::experiment::aoba;
 
-    pub struct NewUser {
+    pub struct newUser {
         pub name: String,
         pub password: String,
     }
@@ -55,111 +55,30 @@ pub mod entity {
     }
 }
 
-// mod row {
-//     #![allow(unused, non_snake_case, non_camel_case_types)]
-//     use crate::experiment::aoba;
-// 
-//     pub struct User_id_name_password {pub id: u32, pub name: String, pub password: String}
-//     pub struct User_id_name {pub id: u32, pub name: String}
-//     pub struct User_id_password {pub id: u32, pub password: String}
-//     pub struct User_name_password {pub name: String, pub password: String}
-//     pub struct User_id {pub id: u32}
-//     pub struct User_name {pub name: String}
-//     pub struct User_password {pub password: String}
-// }
-
 pub mod __private {
     #![allow(unused, non_snake_case, non_camel_case_types)]
-    use sqlx::{FromRow, Value, Row};
+    use std::marker::PhantomData;
 
-    use super::{entity::{User, NewUser}, table::{users}};
-
+    use sqlx::{FromRow, Value, Row, Database, Executor};
+    use super::{entity::{User, newUser}, table::users};
     use crate::experiment::aoba;
 
-    // pub struct SelectUserColumns {
-    //     id: bool,
-    //     name: bool,
-    //     password: bool,
-    // }
-    // impl SelectUserColumns {
-    //     #[inline] pub(super) fn new() -> Self {
-    //         Self { id: true, name: true, password: true }
-    //     }
-    // }
-    // const _: () = {
-    //     impl From<users> for SelectUserColumns {
-    //         #[inline] fn from(value: users) -> Self {
-    //             SelectUserColumns { id: true, name: true, password: true }
-    //         }
-    //     }
-    //     impl From<[UserColumn; 1]> for SelectUserColumns {
-    //         #[inline] fn from(value: [UserColumn; 1]) -> Self {
-    //             let mut select = Self { id: false, name: false, password: false };
-    //             match value[0] {
-    //                 UserColumn::id => select.id = true,
-    //                 UserColumn::name => select.name = true,
-    //                 UserColumn::password => select.password = true,
-    //             }
-    //             select
-    //         }
-    //     }
-    //     impl From<[UserColumn; 2]> for SelectUserColumns {
-    //         #[inline] fn from(value: [UserColumn; 2]) -> Self {
-    //             let mut select = Self { id: false, name: false, password: false };
-    //             for column in value.into_iter() {
-    //                 match column {
-    //                     UserColumn::id => select.id = true,
-    //                     UserColumn::name => select.name = true,
-    //                     UserColumn::password => select.password = true,
-    //                 }
-    //             }
-    //             select
-    //         }
-    //     }
-    //     impl From<[UserColumn; 3]> for SelectUserColumns {
-    //         #[inline] fn from(value: [UserColumn; 3]) -> Self {
-    //             let mut select = Self { id: false, name: false, password: false };
-    //             for column in value.into_iter() {
-    //                 match column {
-    //                     UserColumn::id => select.id = true,
-    //                     UserColumn::name => select.name = true,
-    //                     UserColumn::password => select.password = true,
-    //                 }
-    //             }
-    //             select
-    //         }
-    //     }
-    // };
     const USER_COLUMNS: users = users {
         id: UserColumn::id,
         name: UserColumn::name,
         password: UserColumn::password,
     };
-    pub enum UserColumn {
-        id,
-        name,
-        password,
-    } impl UserColumn {
-        #[inline] fn as_name(self) -> &'static str {
-            match self {
-                Self::id => "id",
-                Self::name => "name",
-                Self::password => "password",
-            }
-        }
-    }
+    pub enum UserColumn {id, name, password,}
 
-    struct OrderUserBy {
+    struct OrderUsersBy {
         id: Option<aoba::Order>,
         name: Option<aoba::Order>,
         password: Option<aoba::Order>,
     }
-    impl OrderUserBy {
+    impl OrderUsersBy {
         #[inline] pub(super) fn new() -> Self {
             Self { id: None, name: None, password: None }
         }
-    }
-    impl OrderUserBy {
         #[inline] fn set(&mut self, column: UserColumn, order: aoba::Order) {
             match column {
                 UserColumn::id => self.id = Some(order),
@@ -182,22 +101,20 @@ pub mod __private {
             self.0 += &new_condition;
             self
         }
-    }
-    impl UserCondition {
         #[inline] pub fn id_eq(mut self, another: u32) -> Self {
             self.and(format!("id = {another}"))
         }
         #[inline] pub fn id_between(mut self, left: u32, right: u32) -> Self {
             self.and(format!("id BETWEEN {left} AND {right}"))
         }
-
+    
         #[inline] pub fn name_eq<Str: aoba::string>(mut self, another: Str) -> Self {
             self.and(format!("name = '{}'", another.as_str()))
         }
         #[inline] pub fn name_like<Str: aoba::string>(mut self, regex: Str) -> Self {
             self.and(format!("name LIKE '{}'", regex.as_str()))
         }
-
+    
         #[inline] pub fn password_eq<Str: aoba::string>(mut self, another: Str) -> Self {
             self.and(format!("password = '{}'", another.as_str()))
         }
@@ -206,73 +123,93 @@ pub mod __private {
         }
     }
 
-    pub struct UserCreater(
-        NewUser
-    );
-    impl UserCreater {
-        #[inline] pub(super) fn new(create_user: NewUser) -> Self {
+    pub struct CreateUser(newUser);
+    impl CreateUser {
+        #[inline] pub(super) fn new(create_user: newUser) -> Self {
             Self(create_user)
         }
-
-        // #[inline] pub fn RETURNING<F: Fn(UserColumns) -> U, U: Into<SelectUserColumns>>(
-        //     self,
-        //     select_columns: F,
-        // ) -> UserCreaterReturning {
-        //     let columns = select_columns(USER_COLUMNS).into();
-        //     UserCreaterReturning { entity: self.0, columns }
-        // }
     }
-    impl<'q, DB: sqlx::Database> sqlx::Execute<'q, DB> for UserCreater {
-        fn statement(&self) -> Option<&<DB as sqlx::database::HasStatement<'q>>::Statement> {None}
-        fn take_arguments(&mut self) -> Option<<DB as sqlx::database::HasArguments<'q>>::Arguments> {None}
-        fn persistent(&self) -> bool {true}
-        fn sql(&self) -> &'q str {
-            todo!()
+    const _: (/* CreateUser Query Builder */) = {
+        impl<'q, DB: sqlx::Database> sqlx::Execute<'q, DB> for CreateUser {
+            #[inline] fn statement(&self) -> Option<&<DB as sqlx::database::HasStatement<'q>>::Statement> {None}
+            #[inline] fn take_arguments(&mut self) -> Option<<DB as sqlx::database::HasArguments<'q>>::Arguments> {None}
+            #[inline] fn persistent(&self) -> bool {true}
+            #[inline] fn sql(&self) -> &'q str {
+                todo!()
+            }
         }
-    }
-    impl<'e, E: sqlx::Executor<'e>> aoba::Query<'e, E> for UserCreater
-    where
-        for <'r> &'r std::primitive::str: sqlx::ColumnIndex<<E::Database as sqlx::Database>::Row>,
-        i64: for <'r> sqlx::decode::Decode<'r, <<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
-        i64: for <'r> sqlx::types::Type<<<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
-        String: for <'r> sqlx::decode::Decode<'r, <<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
-        String: for <'r> sqlx::types::Type<<<E::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
-    {
-        type Return = User;
+        impl CreateUser {
+            #[inline] pub async fn exec<'e, E: sqlx::Executor<'e>>(self, executer: E) -> sqlx::Result<<<E as sqlx::Executor<'e>>::Database as sqlx::Database>::QueryResult> {
+                executer
+                    .execute(self)
+                    .await
+            }
+            pub async fn save<'e, E: sqlx::Executor<'e>>(self, executer: E) -> sqlx::Result<User>
+            where
+                &'e str: sqlx::ColumnIndex<<<E as sqlx::Executor<'e>>::Database as sqlx::Database>::Row>,
+                i64: sqlx::decode::Decode<'e, <<<E as sqlx::Executor<'e>>::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
+                i64: sqlx::types::Type<<<<E as sqlx::Executor<'e>>::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
+                String: sqlx::decode::Decode<'e, <<<E as sqlx::Executor<'e>>::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
+                String: sqlx::types::Type<<<<E as sqlx::Executor<'e>>::Database as sqlx::Database>::Row as sqlx::Row>::Database>,
+            {
+                struct Query<'q, DB: Database> {
+                    statement: &'q str,
+                    database:  PhantomData<DB>,
+                }
+                struct QueryAs<'q, DB: Database, O> {
+                    inner:  Query<'q, DB>,
+                    output: PhantomData<O>,
+                }
 
-        #[inline] async fn exec(self, executer: E) -> Result<aoba::QuerySucceed, sqlx::Error> {
-            executer.execute(self).await.map(|_| aoba::QuerySucceed)
+                impl<'q, DB: Database> sqlx::Execute<'q, DB> for Query<'q, DB> {
+                    #[inline] fn statement(&self) -> Option<&<DB as sqlx::database::HasStatement<'q>>::Statement> {None}
+                    #[inline] fn take_arguments(&mut self) -> Option<<DB as sqlx::database::HasArguments<'q>>::Arguments> {None}
+                    #[inline] fn persistent(&self) -> bool {true}
+                    #[inline] fn sql(&self) -> &'q str {
+                        todo!()
+                    }
+                }
+
+                impl<'q, DB, O> QueryAs<'q, DB, O>
+                where
+                    DB: Database,
+                    O: Send + Unpin + for<'r> FromRow<'r, DB::Row>,
+                {
+                    async fn save<'e, 'c: 'e, E>(self, executer: E) -> sqlx::Result<Option<O>>
+                    where
+                        'q: 'e,
+                        E: 'e + Executor<'c, Database = DB>,
+                        DB: 'e,
+                        O: 'e,
+                    {
+                        let row = executer.fetch_optional(self.inner).await?;
+                        if let Some(row) = row {
+                            O::from_row(&row).map(Some)
+                        } else {
+                            Ok(None)
+                        }
+                    }
+                }
+
+                todo!()
+            }
         }
-        #[inline] async fn save(self, executer: E) -> Result<<Self as aoba::Query<'e, E>>::Return, sqlx::Error> {
-            let row = executer
-                .fetch_one(self)
-                .await?;
-            <User as FromRow<<E::Database as sqlx::Database>::Row>>::from_row(&row)
-        }
-    }
-
-    // pub struct UserCreaterReturning {
-    //     entity:  User,
-    //     columns: SelectUserColumns,
-    // }
-    // impl<'q, DB: sqlx::Database> sqlx::Execute<'q, DB> for UserCreaterReturning {
-    //     fn statement(&self) -> Option<&<DB as sqlx::database::HasStatement<'q>>::Statement> {None}
-    //     fn take_arguments(&mut self) -> Option<<DB as sqlx::database::HasArguments<'q>>::Arguments> {None}
-    //     fn persistent(&self) -> bool {true}
-    //     fn sql(&self) -> &'q str {
-    //         todo!()
-    //     }
-    // }
-
-    pub struct UserUpdater {
-        set_values: UpdateUser,
+    };            
+    pub struct UpdateUsers {
+        set_values: ValueSetter,
         limit:      Option<usize>,
         condition:  UserCondition,
-    } impl UserUpdater {
+    }
+    pub struct ValueSetter {
+        id: Option<u32>,
+        name: Option<String>,
+        password: Option<String>,
+    }
+    impl UpdateUsers {
         #[inline] pub(super) fn new() -> Self {
-            Self { set_values: UpdateUser::new(), limit: None, condition: UserCondition::new() }
+            Self { set_values: ValueSetter::new(), limit: None, condition: UserCondition::new() }
         }
-        #[inline] pub fn SET<F: Fn(UpdateUser) -> UpdateUser>(mut self, values_setter: F) -> Self {
+        #[inline] pub fn SET<F: Fn(ValueSetter) -> ValueSetter>(mut self, values_setter: F) -> Self {
             self.set_values = values_setter(self.set_values);
             self
         }
@@ -285,11 +222,7 @@ pub mod __private {
             self
         }
     }
-    pub struct UpdateUser {
-        id: Option<u32>,
-        name: Option<String>,
-        password: Option<String>,
-    } impl UpdateUser {
+    impl ValueSetter {
         #[inline] pub(super) fn new() -> Self {
             Self { id: None, name: None, password: None }
         }
@@ -301,18 +234,16 @@ pub mod __private {
             self.password = Some(password.to_string());
             self
         }
-    }
+    }            
 
-    pub struct UserDeleter {
+    pub struct DeleteUsers {
         limit:     Option<usize>,
         condition: UserCondition,
     }
-    impl UserDeleter {
-        pub(super) fn new() -> Self {
+    impl DeleteUsers {
+        #[inline] pub(super) fn new() -> Self {
             Self { limit: None, condition: UserCondition::new() }
         }
-    }
-    impl UserDeleter {
         #[inline] pub fn WHERE<F: Fn(UserCondition) -> UserCondition>(mut self, condition_builder: F) -> Self {
             self.condition = condition_builder(self.condition);
             self
@@ -323,23 +254,23 @@ pub mod __private {
         }
     }
 
-    pub struct UsersSelecter {
+    pub struct GetUsers {
         // select:    SelectUserColumns,
         limit:     Option<usize>,
-        order:     OrderUserBy,
+        order:     OrderUsersBy,
         condition: UserCondition,
     }
-    impl UsersSelecter {
+    impl GetUsers {
         pub(super) fn new() -> Self {
             Self {
                 // select:    SelectUserColumns::new(),
                 limit:     None,
-                order:     OrderUserBy::new(),
+                order:     OrderUsersBy::new(),
                 condition: UserCondition::new(),
             }
         }
-        // pub fn SELECT<Columns: Into<SelectUserColumns>, F: Fn(users) -> Columns>(mut self, select_columns: F) -> Self {
-        //     self.select = select_columns(USER_COLUMNS).into();
+        // pub fn SELECT<Columns: Into<SelectColumns>, F: Fn(s) -> Columns>(mut self, select_columns: F) -> Self {
+        //     self.select = select_columns(_COLUMNS).into();
         //     self
         // }
         pub fn WHERE<F: Fn(UserCondition) -> UserCondition>(mut self, condition_builder: F) -> Self {
@@ -350,21 +281,21 @@ pub mod __private {
             self.limit = Some(limit);
             self
         }
-        pub fn ORDER_BY<F: Fn(users) -> UserColumn>(mut self, select_column: F) -> Self {
+        pub fn ORDER_ASC<F: Fn(users) -> UserColumn>(mut self, select_column: F) -> Self {
             self.order.set(select_column(USER_COLUMNS), aoba::Order::Asc);
             self
         }
-        pub fn ORDER_BY_REVERSED<F: Fn(users) -> UserColumn>(mut self, select_column: F) -> Self {
+        pub fn ORDER_DESC<F: Fn(users) -> UserColumn>(mut self, select_column: F) -> Self {
             self.order.set(select_column(USER_COLUMNS), aoba::Order::Desc);
             self
         }
     }
 
-    pub struct UserSelecter {
+    pub struct GetUser {
         // select:    SelectUserColumns,
         condition: UserCondition,
     }
-    impl UserSelecter {
+    impl GetUser {
         pub(super) fn new() -> Self {
             Self {
                 // select:    SelectUserColumns::new(),
@@ -380,18 +311,13 @@ pub mod __private {
             self
         }
     }
-    impl<'q, DB: sqlx::Database> sqlx::Execute<'q, DB> for UserSelecter {
+    impl<'q, DB: sqlx::Database> sqlx::Execute<'q, DB> for GetUser {
+        fn statement(&self) -> Option<&<DB as sqlx::database::HasStatement<'q>>::Statement> {None}
+        fn take_arguments(&mut self) -> Option<<DB as sqlx::database::HasArguments<'q>>::Arguments> {None}
+        fn persistent(&self) -> bool {true}
+    
         fn sql(&self) -> &'q str {
             todo!()
-        }
-        fn statement(&self) -> Option<&<DB as sqlx::database::HasStatement<'q>>::Statement> {
-            None
-        }
-        fn take_arguments(&mut self) -> Option<<DB as sqlx::database::HasArguments<'q>>::Arguments> {
-            None
-        }
-        fn persistent(&self) -> bool {
-            true
         }
     }
 }

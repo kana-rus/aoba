@@ -1,9 +1,8 @@
 use sqlx::ConnectOptions;
 
-use super::aoba::Query;
 use super::schema::{
     table::users,
-    entity::NewUser,
+    entity::{newUser, User},
 };
 
 async fn _user_() {
@@ -14,8 +13,8 @@ async fn _user_() {
 
     users::ALL()
         .LIMIT(100)
-        .ORDER_BY(|u| u.name)
-        .ORDER_BY_REVERSED(|u| u.password)
+        .ORDER_ASC(|u| u.name)
+        .ORDER_DESC(|u| u.password)
         .WHERE(|u| u
             .name_like("%user")
             .id_between(1, 1000)
@@ -23,17 +22,24 @@ async fn _user_() {
 
     users::FIRST();
 
-    let create_query = users::CREATE(NewUser {
+    let create_query = users::CREATE(newUser {
         name: String::from("user1"),
         password: String::from("password"),
     });
-    let result  = create_query.exec(&mut conn).await;
+    let result = create_query
+        .exec(&mut conn)
+        .await;
 
-    let create_query = users::CREATE(NewUser {
+    let create_query = users::CREATE(newUser {
         name: String::from("user1"),
         password: String::from("password"),
     });
-    let created = create_query.save(&mut conn).await;
+    let created = create_query
+        .save(&mut conn)
+        .await
+        .unwrap();
+    let id: i64 = created.id;
+    let name: String = created.name;
 
     users::UPDATE()
         .SET(|u| u
