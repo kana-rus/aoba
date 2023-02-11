@@ -1056,6 +1056,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "single_table"
+version = "0.1.0"
+dependencies = [
+ "aoba",
+]
+
+[[package]]
 name = "slab"
 version = "0.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"

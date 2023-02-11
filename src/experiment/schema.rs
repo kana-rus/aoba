@@ -8,6 +8,17 @@ schema! {
 }
 */
 
+pub mod column {
+    #![allow(unused, non_snake_case, non_camel_case_types)]
+    #![allow(non_upper_case_globals)]
+
+    use super::__private::column;
+
+    pub const id: column::id = column::id;
+    pub const name: column::name = column::name;
+    pub const password: column::password = column::password;
+}
+
 pub mod table {
     #![allow(unused, non_snake_case, non_camel_case_types)]
 
@@ -58,10 +69,38 @@ pub mod entity {
 pub mod __private {
     #![allow(unused, non_snake_case, non_camel_case_types)]
     use std::marker::PhantomData;
-
     use sqlx::{FromRow, Value, Row, Database, Executor};
     use super::{entity::{User, newUser}, table::users};
     use crate::experiment::aoba;
+
+    pub mod column {
+        pub trait Column {fn name(&self) -> &'static str;}
+        pub trait UserColumn {}
+        // pub trait TaskColumn {}
+        // ...
+
+        pub struct id; const _: () = {
+            impl UserColumn for id {}
+        };
+        pub struct name; const _: () = {
+            impl UserColumn for name {}
+        };
+        pub struct password; const _: () = {
+            impl UserColumn for password {}
+        };
+    }
+
+    pub mod user {
+        #![allow(unused, non_snake_case, non_camel_case_types)]
+        use super::{column, column::UserColumn};
+
+        pub struct OrderBy(String);
+        impl OrderBy {
+            pub fn asc<C: UserColumn>(&mut self, column: C) {
+
+            }
+        }
+    }
 
     const USER_COLUMNS: users = users {
         id: UserColumn::id,
