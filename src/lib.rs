@@ -1,17 +1,7 @@
 #![allow(incomplete_features)]
-#![feature(async_fn_in_trait)]
+#![feature(adt_const_params)]
 
-// === x ===
-// #![feature(generic_const_exprs)]
-// #![feature(adt_const_params)]
-// =========
+#![allow(non_snake_case, non_camel_case_types)]
 
-mod connection_pool;
-mod entity;
-mod experiment;
-
-// use sqlx::{Pool, Database};
-// 
-// impl<DB: Database> ConnectionPool for Pool<DB> {
-// 
-// }
+pub mod condition;
+pub mod db_types;
