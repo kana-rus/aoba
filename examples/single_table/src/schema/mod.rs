@@ -162,8 +162,6 @@ mod __private {
             self.set = set(SetUser::new());
             self
         }
-    }
-    impl UpdateUsers {
         #[inline] pub fn WHERE<IntoCondition: Into<aoba::condition::Condition>, F: Fn(UserCondition)->IntoCondition>(mut self, conditions: F) -> Self {
             self.condition = conditions(USERS_CONDITION).into();
             self
