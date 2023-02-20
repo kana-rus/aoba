@@ -40,16 +40,4 @@ impl<const COLUMN: &'static str> NumberCondition<COLUMN> {
     pub fn le<N: Number>(&self, another: N) -> Condition {
         Condition(format!("NOT {COLUMN} > {another}"))
     }
-// }
-// 
-// impl<const COLUMN: &'static str> NumberNegativeCondition<COLUMN> {
-//     pub fn eq<N: Number>(&self, another: N) -> Condition {
-//         Condition(format!("NOT {COLUMN} = {another}"))
-//     }
-//     pub fn gt<N: Number>(&self, another: N) -> Condition {
-//         Condition(format!("NOT {COLUMN} > {another}"))
-//     }
-//     pub fn lt<N: Number>(&self, another: N) -> Condition {
-//         Condition(format!("NOT {COLUMN} < {another}"))
-//     }
 }

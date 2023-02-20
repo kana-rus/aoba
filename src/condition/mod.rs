@@ -1,34 +1,35 @@
 use std::fmt::Display;
-use std::ops::BitOr;
+use std::ops::{BitOr, BitAnd};
 
 mod number; pub use number::NumberCondition;
-mod string; pub use string::StringCondition;
+mod string; pub use string::{StringCondition, Str};
 
 pub struct Condition(String);
 impl Condition {
+    #[inline] pub fn AND(self, another: Self) -> Condition {
+        Condition(format!(
+            "({} AND {})", self.0, another.0
+        ))
+    }
     #[inline] pub fn OR(self, another: Self) -> Condition {
         Condition(format!(
             "({} OR {})", self.0, another.0
         ))
     }
     #[inline] pub fn new() -> Self {
-        Self(format!("WHERE"))
+        Self(String::new())
     }
 }
 impl BitOr for Condition {
     type Output = Condition;
-    fn bitor(self, rhs: Self) -> Self::Output {
+    #[inline] fn bitor(self, rhs: Self) -> Self::Output {
         self.OR(rhs)
     }
 }
-impl Condition {
-    // #[inline] fn is_empty(&self) -> bool {
-    //     self.0.len() == 5
-    // }
-    #[inline] fn AND(self, another: Self) -> Condition {
-        Condition(format!(
-            "({} AND {})", self.0, another.0
-        ))
+impl BitAnd for Condition {
+    type Output = Condition;
+    #[inline] fn bitand(self, rhs: Self) -> Self::Output {
+        self.AND(rhs)
     }
 }
 
@@ -39,7 +40,7 @@ impl<const N: usize> Into<Condition> for [Condition; N] {
 }
 
 impl Display for Condition {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
+    #[inline] fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.0.is_empty() {write!(f, "")} else {write!(f, "WHERE {}", self.0)}
     }
 }
