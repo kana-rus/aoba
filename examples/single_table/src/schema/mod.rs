@@ -33,6 +33,8 @@ pub struct newUser {
 mod __private {
     use super::*;
 
+    pub struct UserColumns 
+
     pub struct UserCondition {
         pub id:       aoba::condition::NumberCondition<"id">,
         pub name:     aoba::condition::StringCondition<"name">,
@@ -41,18 +43,18 @@ mod __private {
     impl UserCondition {
         #[inline] fn new() -> Self {
             Self {
-                id:       aoba::condition::NumberCondition::new(),
-                name:     aoba::condition::StringCondition::new(),
-                password: aoba::condition::StringCondition::new(),
+                id:       aoba::condition::NumberCondition,
+                name:     aoba::condition::StringCondition,
+                password: aoba::condition::StringCondition,
             }
         }
     }
 
     pub struct GetUser {
-        pub(in super) condition: aoba::condition::Condition,
+        pub(super) condition: aoba::condition::Condition,
     }
     impl GetUser {
-        #[inline] pub fn WHERE<const N: usize, F: Fn(UserCondition)->[aoba::condition::Condition; N]>(mut self, conditions: F) -> Self {
+        #[inline] pub fn WHERE<IntoCondition: Into<aoba::condition::Condition>, F: Fn(UserCondition)->IntoCondition>(mut self, conditions: F) -> Self {
             self.condition = conditions(UserCondition::new()).into();
             self
         }
@@ -66,6 +68,12 @@ mod __private {
                 .fetch_one(connection_pool)
                 .await
         }
+    }
+
+    pub struct GetUsers {
+        pub(super) condition: aoba::condition::Condition,
+        pub(super) limit: Option<usize>,
+        pub(super) order: ,
     }
 }
 

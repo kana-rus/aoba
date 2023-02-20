@@ -6,9 +6,14 @@ async fn _sample_() -> sqlx::Result<()> {
 
     let _user = users::FIRST()
         .WHERE(|user| [
-            (user.id.less_than(1000)).OR (user.id.greater_than(10000)),
-            (user.password.NOT.equals("password"))
+            user.id.lt(1000) .OR (user.id.ge(10000)),
+            user.password.unlike("password"),
         ])
+        .save(&dummy_pool)
+        .await?;
+
+    let _user = users::FIRST()
+        .WHERE(|u| u.name.like("%user"))
         .save(&dummy_pool)
         .await?;
 

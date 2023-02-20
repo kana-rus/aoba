@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
-mod number; pub use number::{NumberCondition, NumberNegativeCondition};
-mod string; pub use string::{StringCondition, StringNegativeCondition};
+mod number; pub use number::NumberCondition;
+mod string; pub use string::StringCondition;
 
 pub struct Condition(String);
 impl Condition {
@@ -15,9 +15,9 @@ impl Condition {
     }
 }
 impl Condition {
-    #[inline] fn is_empty(&self) -> bool {
-        self.0.len() == 5
-    }
+    // #[inline] fn is_empty(&self) -> bool {
+    //     self.0.len() == 5
+    // }
     #[inline] fn AND(self, another: Self) -> Condition {
         Condition(format!(
             "({} AND {})", self.0, another.0
