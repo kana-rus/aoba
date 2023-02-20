@@ -1,4 +1,5 @@
 use std::fmt::Display;
+use std::ops::BitOr;
 
 mod number; pub use number::NumberCondition;
 mod string; pub use string::StringCondition;
@@ -12,6 +13,12 @@ impl Condition {
     }
     #[inline] pub fn new() -> Self {
         Self(format!("WHERE"))
+    }
+}
+impl BitOr for Condition {
+    type Output = Condition;
+    fn bitor(self, rhs: Self) -> Self::Output {
+        self.OR(rhs)
     }
 }
 impl Condition {

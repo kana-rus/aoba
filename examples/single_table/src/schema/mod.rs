@@ -33,7 +33,7 @@ pub struct newUser {
 mod __private {
     use super::*;
 
-    pub struct UserColumns 
+    //pub struct UserColumns 
 
     pub struct UserCondition {
         pub id:       aoba::condition::NumberCondition<"id">,
@@ -73,7 +73,7 @@ mod __private {
     pub struct GetUsers {
         pub(super) condition: aoba::condition::Condition,
         pub(super) limit: Option<usize>,
-        pub(super) order: ,
+        //pub(super) order: ,
     }
 }
 

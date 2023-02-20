@@ -6,7 +6,7 @@ async fn _sample_() -> sqlx::Result<()> {
 
     let _user = users::FIRST()
         .WHERE(|user| [
-            user.id.lt(1000) .OR (user.id.ge(10000)),
+            user.id.lt(1000) | user.id.ge(10000),
             user.password.unlike("password"),
         ])
         .save(&dummy_pool)
