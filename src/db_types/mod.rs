@@ -28,7 +28,6 @@ pub enum DBTypes {
 
 fn from_row<'r, T: sqlx::FromRow<'r, sqlx::postgres::PgRow>>() {}
 fn test() {
-    sqlx::postgres::types
     // from_row::<(u8,)>();
     // from_row::<(u16,)>();
     // from_row::<(u32,)>();
@@ -41,6 +40,6 @@ fn test() {
     // from_row::<(isize,)>();
     from_row::<(String,)>();
     from_row::<(bool,)>();
-    from_row::<f32>();
-    from_row::<f64>();
+    // from_row::<f32>();
+    // from_row::<f64>();
 }

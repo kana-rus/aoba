@@ -1,38 +1,28 @@
-use std::marker::PhantomData;
+mod number; pub use number::{NumberCondition, NumberNegativeCondition};
+mod string; pub use string::{StringCondition, StringNegativeCondition};
 
 pub struct Condition(String);
 impl Condition {
-    fn AND(self, another: Self) -> Condition {
+    #[inline] fn is_empty(&self) -> bool {
+        self.0.len() == 5
+    }
+    #[inline] fn AND(self, another: Self) -> Condition {
         Condition(format!(
             "({} AND {})", self.0, another.0
         ))
     }
-    fn OR(self, another: Self) -> Condition {
+    #[inline] pub fn OR(self, another: Self) -> Condition {
         Condition(format!(
             "({} OR {})", self.0, another.0
         ))
     }
-}
-
-pub struct ConditionBuilder<const COLUMN: &'static str, Type> {
-    pub NOT: NegativeConditionBuilder<COLUMN, Type>,
-    r#type:  PhantomData<Type>,
-    content: String,
-}
-pub struct NegativeConditionBuilder<const COLUMN: &'static str, Type> {
-    r#type:  PhantomData<Type>,
-    content: String,
-}
-
-
-impl<const COLUMN: &'static str> ConditionBuilder<COLUMN, i64> {
-    pub fn equals(&self, another: i64) -> Condition {
-        Condition(format!("{COLUMN} = {another}"))
+    #[inline] pub fn new() -> Self {
+        Self(format!("WHERE"))
     }
-    pub fn greater_than(&self, another: i64) -> Condition {
-        Condition(format!("{COLUMN} > {another}"))
-    }
-    pub fn less_than(&self, another: i64) -> Condition {
-        Condition(format!("{COLUMN} < {another}"))
+}
+
+impl<const N: usize> Into<Condition> for [Condition; N] {
+    fn into(self) -> Condition {
+        self.into_iter().fold(Condition::new(), |it, next| it.AND(next))
     }
 }
