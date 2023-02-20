@@ -25,10 +25,15 @@ impl<const COLUMN: &'static str> StringCondition<COLUMN> {
     pub fn equals<S: AsStr>(&self, another: S) -> Condition {
         Condition(format!("{COLUMN} = '{}'", another.as_str()))
     }
-    pub fn greater_than<S: AsStr>(&self, another: S) -> Condition {
-        Condition(format!("{COLUMN} > '{}'", another.as_str()))
+    pub fn like<S: AsStr>(&self, another: S) -> Condition {
+        Condition(format!("{COLUMN} LIKE '{}'", another.as_str()))
     }
-    pub fn less_than<S: AsStr>(&self, another: S) -> Condition {
-        Condition(format!("{COLUMN} < '{}'", another.as_str()))
+}
+impl<const COLUMN: &'static str> StringNegativeCondition<COLUMN> {
+    pub fn equals<S: AsStr>(&self, another: S) -> Condition {
+        Condition(format!("NOT {COLUMN} = '{}'", another.as_str()))
+    }
+    pub fn like<S: AsStr>(&self, another: S) -> Condition {
+        Condition(format!("NOT {COLUMN} LIKE '{}'", another.as_str()))
     }
 }
