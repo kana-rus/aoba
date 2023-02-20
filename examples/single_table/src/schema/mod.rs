@@ -79,7 +79,7 @@ mod __private {
     }
     impl GetUser {
         #[inline] pub async fn save(self, connection_pool: &sqlx::PgPool) -> sqlx::Result<User> {
-            sqlx::query_as(&format!("SELECT id, name, password FROM users {}", self.condition))
+            sqlx::query_as(&format!("SELECT * FROM users {}", self.condition))
                 .fetch_one(connection_pool)
                 .await
         }
@@ -110,7 +110,7 @@ mod __private {
     }
     impl GetUsers {
         #[inline] pub async fn save(self, connection_pool: &sqlx::PgPool) -> sqlx::Result<Vec<User>> {
-            sqlx::query_as(&format!("SELECT id, name, password FROM users {} {} {}", self.condition, self.limit, self.order))
+            sqlx::query_as(&format!("SELECT * FROM users {} {} {}", self.condition, self.limit, self.order))
                 .fetch_all(connection_pool)
                 .await
         }
@@ -119,7 +119,7 @@ mod __private {
     pub struct CreateUser(pub(super) newUser);
     impl CreateUser {
         #[inline] pub async fn save(self, connection_pool: &sqlx::PgPool) -> sqlx::Result<User> {
-            sqlx::query_as("INSERT INTO users (name, password) VALUES ($1, $2) RETURNING id, name, password")
+            sqlx::query_as("INSERT INTO users (name, password) VALUES ($1, $2) RETURNING *")
                 .bind(self.0.name)
                 .bind(self.0.password)
                 .fetch_one(connection_pool)
@@ -173,7 +173,7 @@ mod __private {
     }
     impl UpdateUsers {
         #[inline] pub async fn save(self, connection_pool: &sqlx::PgPool) -> sqlx::Result<Vec<User>> {
-            sqlx::query_as(&format!("UPDATE users {} {} {} RETURNING id, name, password", self.set, self.condition, self.limit))
+            sqlx::query_as(&format!("UPDATE users {} {} {} RETURNING *", self.set, self.condition, self.limit))
                 .fetch_all(connection_pool)
                 .await
         }
@@ -201,7 +201,7 @@ mod __private {
     }
     impl DeleteUsers {
         #[inline] pub async fn save(self, connection_pool: &sqlx::PgPool) -> sqlx::Result<Vec<User>> {
-            sqlx::query_as(&format!("DELETE FROM users {} {} RETURNING id, name, password", self.condition, self.limit))
+            sqlx::query_as(&format!("DELETE FROM users {} {} RETURNING *", self.condition, self.limit))
                 .fetch_all(connection_pool)
                 .await
         }
