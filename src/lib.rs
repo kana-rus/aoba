@@ -11,7 +11,7 @@ pub mod limit;
 #[macro_export]
 macro_rules! schema {
     {
-        // $(
+        $(
             $( #[use $( $mixin:ident ),+] )?
             $model_name:ident {
                 $(
@@ -26,23 +26,23 @@ macro_rules! schema {
                 $first_table_constrain:ident $first_table_constrain_arg:tt
                 $( + $table_constrain:ident $table_constrain_arg:tt )*
             )?
-        // ),*
+        ),*
     } => {
-        // $(
+        $(
             #[allow(unused, non_upper_case_globals)]
             mod $model_name {
                 $(
                     const $column_name: crate::schema::DBType = crate::schema::DBType::$db_type $(($size))?;
                 )*
             }
-        // )*
+        )*
     };
 }
 
 schema!{
     User {
         name: TEXT,
-        password: VARCHAR(20)
+        password: VARCHAR(20),
     }
 }
 
