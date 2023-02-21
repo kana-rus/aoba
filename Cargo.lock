@@ -17,12 +17,12 @@ dependencies = [
 name = "aoba"
 version = "0.1.0"
 dependencies = [
- "aoba_derive",
+ "aoba_macros",
  "sqlx",
 ]
 
 [[package]]
-name = "aoba_derive"
+name = "aoba_macros"
 version = "0.1.0"
 dependencies = [
  "proc-macro2",

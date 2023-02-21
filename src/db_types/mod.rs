@@ -12,7 +12,7 @@ pub enum DBTypes {
     BIGSERIAL,// -> i64
     
     REAL,// -> f32
-    DOUBLE_PRECISION,// -> f64
+    DOUBLEPRECISION,// -> f64
 
     DATE,// -> self::times::Date
     TIME,// -> self::times::Time
