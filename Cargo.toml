@@ -10,12 +10,17 @@ name = "aoba"
 version = "0.1.0"
 edition = "2021"
 
-[features]
-default = []
-nightly = []
-
 [dependencies]
-async-std = "1"
 aoba_derive = { version = "0.1.0", path = "./derive" }
 sqlx = { version = "0.6", default-features = false, features = ["runtime-async-std-native-tls", "postgres", "macros"] }
-futures-core = { version = "0.3.19", default-features = false }
+
+[features]
+default = []
+
+### future plan
+# sqlx-asyncstd-postgres = []
+# sqlx-asyncstd-mysql = []
+# sqlx-tokio-postgres = []
+# sqlx-tokio-mysql = []
+# deadpool-asyncstd-postgres = []
+# deadpool-tokio-postgres = []
