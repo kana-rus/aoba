@@ -1,3 +1,8 @@
+pub enum Mixin {
+    id,
+    times,
+}
+
 pub enum DBType {
     // -> String
     VARCHAR(usize),
@@ -8,6 +13,7 @@ pub enum DBType {
     SMALLINT,// -> i16
     INT,// -> i32
     BIGINT,// -> i64
+    
     SERIAL,// -> i32
     BIGSERIAL,// -> i64
     
@@ -17,7 +23,7 @@ pub enum DBType {
     DATE,// -> self::times::Date
     TIME,// -> self::times::Time
     TIMESTAMP,// -> self::times::TimeStamp
-    TIMESTAMPZ,// -> self::times::TimeStampZ
+    // TIMESTAMPZ,// -> self::times::TimeStampZ
     INTERVAL,// -> self::times::Interval
 
     // -> impl JSON
