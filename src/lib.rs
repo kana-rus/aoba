@@ -33,6 +33,12 @@ macro_rules! schema {
             mod $model_name {
                 $(
                     const $column_name: crate::schema::DBType = crate::schema::DBType::$db_type $(($size))?;
+                    $(
+                        const _: crate::schema::ColumnConstrain = crate::schema::ColumnConstrain::$first_column_constrain;
+                        $(
+                            const _: crate::schema::ColumnConstrain = crate::schema::ColumnConstrain::$column_constrain;
+                        )*
+                    )?
                 )*
             }
         )*
