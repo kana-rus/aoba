@@ -26,7 +26,7 @@ macro_rules! schema {
                 $first_table_constrain:ident $first_table_constrain_arg:tt
                 $( + $table_constrain:ident $table_constrain_arg:tt )*
             )?
-        ),*
+        ),* $(,)?
     } => {
         $(
             #[allow(unused, non_upper_case_globals)]
@@ -41,6 +41,7 @@ macro_rules! schema {
                     )?
                 )*
             }
+            
         )*
     };
 }
