@@ -20,7 +20,6 @@ dependencies = [
  "aoba_macros",
  "aoba_orm",
  "aoba_schema",
- "sqlx",
 ]
 
 [[package]]
@@ -40,6 +39,9 @@ version = "0.1.0"
 [[package]]
 name = "aoba_schema"
 version = "0.1.0"
+dependencies = [
+ "syn",
+]
 
 [[package]]
 name = "async-channel"

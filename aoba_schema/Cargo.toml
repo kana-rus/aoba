@@ -9,3 +9,4 @@ postgres = []
 mysql = []
 
 [dependencies]
+syn = "1.0"

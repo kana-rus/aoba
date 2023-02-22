@@ -14,3 +14,4 @@ syn = { version = "1.0", features = ["full"] }
 
 [features]
 postgres = ["aoba_schema/postgres"]
+mysql = ["aoba_schema/mysql"]
