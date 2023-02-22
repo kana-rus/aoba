@@ -14,12 +14,12 @@ edition = "2021"
 
 [features]
 default = []
-# sqlx-asyncstd-postgres = []
-# sqlx-asyncstd-mysql = []
-# sqlx-tokio-postgres = []
-# sqlx-tokio-mysql = []
-# deadpool-asyncstd-postgres = []
-# deadpool-tokio-postgres = []
+sqlx-asyncstd-postgres = ["aoba_schema/postgres", "aoba_macros/postgres"]
+sqlx-asyncstd-mysql = []
+sqlx-tokio-postgres = ["aoba_schema/postgres", "aoba_macros/postgres"]
+sqlx-tokio-mysql = []
+deadpool-asyncstd-postgres = ["aoba_schema/postgres", "aoba_macros/postgres"]
+deadpool-tokio-postgres = ["aoba_schema/postgres", "aoba_macros/postgres"]
 
 [dependencies]
 aoba_orm = { version = "0.1.0", path = "./aoba_orm" }

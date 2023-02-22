@@ -4,5 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-aoba = { version = "0.1.0", path = "../../" }
+aoba = { version = "0.1.0", path = "../../", features = ["sqlx-asyncstd-postgres"] }
 sqlx = { version = "0.6", default-features = false, features = ["runtime-async-std-native-tls", "postgres", "macros"] }

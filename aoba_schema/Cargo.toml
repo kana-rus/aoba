@@ -3,9 +3,9 @@ name = "aoba_schema"
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
-
 [features]
-default = ["postgres"] # for debug
+default = []
 postgres = []
 mysql = []
+
+[dependencies]

@@ -1,4 +1,8 @@
 mod schema;
+
+/*
+
+mod schema;
 use schema::{User, newUser};
 
 async fn _sample_() -> sqlx::Result<()> {
@@ -67,5 +71,7 @@ async fn _sample_() -> sqlx::Result<()> {
 
     Ok(())
 }
+
+*/
 
 fn main() {}
