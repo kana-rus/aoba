@@ -26,8 +26,8 @@ macro_rules! schema {
             )?
         ),* $(,)?
     } => {
-        mod schema {
-            #![allow(unused, non_upper_case_globals)]
+        mod __schema {
+            #![allow(unused, non_snake_case, non_upper_case_globals)]
             $(
                 mod $model_name {
                     $(mod mixin {
