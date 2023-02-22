@@ -30,7 +30,7 @@ macro_rules! schema {
             #![allow(unused, non_snake_case, non_upper_case_globals)]
             $(
                 mod $model_name {
-                    $(mod mixin {
+                    $(mod mixins {
                         $(
                             const _: aoba::schema::Mixin = aoba::schema::Mixin::$mixin;
                         )+
