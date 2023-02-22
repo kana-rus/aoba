@@ -7,6 +7,10 @@ edition = "2021"
 proc-macro = true
 
 [dependencies]
+aoba_schema = { version = "0.1.0", path = "../aoba_schema" }
 proc-macro2 = "1.0"
 quote = "1.0"
 syn = { version = "1.0", features = ["full"] }
+
+[features]
+postgres = ["aoba_schema/postgres"]

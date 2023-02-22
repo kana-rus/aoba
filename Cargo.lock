@@ -18,6 +18,8 @@ name = "aoba"
 version = "0.1.0"
 dependencies = [
  "aoba_macros",
+ "aoba_orm",
+ "aoba_schema",
  "sqlx",
 ]
 
@@ -25,10 +27,19 @@ dependencies = [
 name = "aoba_macros"
 version = "0.1.0"
 dependencies = [
+ "aoba_schema",
  "proc-macro2",
  "quote",
  "syn",
 ]
+
+[[package]]
+name = "aoba_orm"
+version = "0.1.0"
+
+[[package]]
+name = "aoba_schema"
+version = "0.1.0"
 
 [[package]]
 name = "async-channel"
