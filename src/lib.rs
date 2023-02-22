@@ -37,15 +37,17 @@ macro_rules! schema {
                     })?
                     mod columns {
                         $(
-                            const $column_name: aoba::schema::DBType = aoba::schema::DBType::$db_type $( ($size) )?;
-                            $(
-                                const _: aoba::schema::ColumnConstrain
-                                    = aoba::schema::ColumnConstrain::$first_column_constrain $( (aoba::schema::any(stringify!( $( $first_column_constrain_arg )+ ))) )? ;
+                            mod $column_name {
+                            const _: aoba::schema::DBType = aoba::schema::DBType::$db_type $( ($size) )?;
                                 $(
                                     const _: aoba::schema::ColumnConstrain
-                                        = aoba::schema::ColumnConstrain::$column_constrain $( (aoba::schema::any(stringify!( $( $column_constrain_arg )+ ))) )? ;
-                                )*
-                            )?
+                                        = aoba::schema::ColumnConstrain::$first_column_constrain $( (aoba::schema::any(stringify!( $( $first_column_constrain_arg )+ ))) )? ;
+                                    $(
+                                        const _: aoba::schema::ColumnConstrain
+                                            = aoba::schema::ColumnConstrain::$column_constrain $( (aoba::schema::any(stringify!( $( $column_constrain_arg )+ ))) )? ;
+                                    )*
+                                )?
+                            }
                         )*
                     }
                     $(

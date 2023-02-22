@@ -9,4 +9,4 @@ postgres = []
 mysql = []
 
 [dependencies]
-syn = "1.0"
+syn = { version = "1.0", features = ["full"] }
