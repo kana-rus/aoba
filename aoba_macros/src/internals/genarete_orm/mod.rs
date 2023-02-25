@@ -1,7 +1,8 @@
 use proc_macro2::Ident;
+use syn::{punctuated::Punctuated, token};
 
 pub(crate) struct Schema(
-    Vec<Model>
+    Punctuated<Model, token::Comma>
 );
 struct Model {
     mixins:     Vec<aoba_schema::Mixin>,

@@ -68,7 +68,7 @@ macro_rules! schema {
             $(
                 $model_name $( ( $( $mixin )+ ) )?
                 [$(
-                    $column_name $db_type $( ( $size ) )?
+                    $column_name $db_type $( ($size) )?
                     $(where
                         $first_column_constrain $( ( stringify!( $( $first_column_constrain_arg )+ ) ) )?
                         $(

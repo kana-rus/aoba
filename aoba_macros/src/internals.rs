@@ -1,12 +1,11 @@
 use proc_macro2::{TokenStream, Ident};
-use quote::quote;
-use syn::Result;
+use syn::{Result, parse2};
+
+trait Build {
+    fn build(self) -> TokenStream;
+}
 
 mod genarete_orm;
 pub(super) fn generate_orm(schema: TokenStream) -> Result<TokenStream> {
-    let input = schema.to_string();
-
-    Ok(quote!(mod generate {
-        const _: &'static str = #input;
-    }))
+    Ok(parse2::<genarete_orm::Schema>(schema)?.build())
 }

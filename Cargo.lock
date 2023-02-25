@@ -26,7 +26,6 @@ dependencies = [
 name = "aoba_macros"
 version = "0.1.0"
 dependencies = [
- "aoba_schema",
  "proc-macro2",
  "quote",
  "syn",
