@@ -40,7 +40,7 @@ macro_rules! schema {
                     mod columns {
                         $(
                             mod $column_name {
-                            const _: aoba::schema::DBType = aoba::schema::DBType::$db_type $( ($size) )?;
+                                const _: aoba::schema::DBType = aoba::schema::DBType::$db_type $( ($size) )?;
                                 $(
                                     const _: aoba::schema::ColumnConstrain
                                         = aoba::schema::ColumnConstrain::$first_column_constrain $( (aoba::schema::any(stringify!( $( $first_column_constrain_arg )+ ))) )? ;
@@ -66,8 +66,23 @@ macro_rules! schema {
 
         aoba::generate_orm!(
             $(
-                $model_name
-            )*
+                $model_name $( ( $( $mixin )+ ) )?
+                [$(
+                    $column_name $db_type $( ( $size ) )?
+                    $(where
+                        $first_column_constrain $( ( stringify!( $( $first_column_constrain_arg )+ ) ) )?
+                        $(
+                            + $column_constrain $( ( stringify!( $( $column_constrain_arg )+ ) ) )?
+                        )*
+                    )?
+                )*]
+                $(where
+                    $first_table_constrain $( ( stringify!( $( $first_table_constrain_arg )+ ) ) )?
+                    $(
+                        + $table_constrain $( ( stringify!( $( $table_constrain_arg )+ ) ) )?
+                    )*
+                )?
+            ),*
         );
     };
 }
