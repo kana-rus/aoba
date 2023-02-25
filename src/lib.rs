@@ -1,3 +1,5 @@
+pub use aoba_macros::generate_orm;
+
 pub mod orm {
     pub use aoba_orm::*;
 }
@@ -61,21 +63,11 @@ macro_rules! schema {
                 }
             )*
         }
+
+        aoba::generate_orm!(
+            $(
+                $model_name
+            )*
+        );
     };
 }
-
-// mod check { mod aoba { pub use super::super::*; }
-
-//     schema!{
-//         #[use id, times]
-//         User {
-//             name: TEXT,
-//             password: VARCHAR(20),
-//         },
-//         #[use times, id]
-//         Task {
-//             title: VARCHAR(20) where NOT_NULL + DEFAULT("No title"),
-//             description: TEXT where NOT_NULL + DEFAULT("") + CHECK(id > 0),
-//         } where UNIQUE(title, password) + PRIMARY_KEY(title, description)
-//     }
-// }

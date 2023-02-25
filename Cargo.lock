@@ -39,10 +39,6 @@ version = "0.1.0"
 [[package]]
 name = "aoba_schema"
 version = "0.1.0"
-dependencies = [
- "proc-macro2",
- "syn",
-]
 
 [[package]]
 name = "async-channel"

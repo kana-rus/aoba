@@ -9,5 +9,3 @@ postgres = []
 mysql = []
 
 [dependencies]
-syn = { version = "1.0", features = ["full"] }
-proc-macro2 = "1.0"

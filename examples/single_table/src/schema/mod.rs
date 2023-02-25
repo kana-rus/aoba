@@ -1,6 +1,4 @@
-use aoba::schema;
-
-schema!{
+aoba::schema!{
     #[use id, times]
     User {
         name:     VARCHAR(20) where NOT_NULL + DEFAULT("No name"),
